@@ -1,0 +1,51 @@
+{
+  "eventId": "evt_abc123xyz789def456",
+  "eventType": "FORM_RESPONSE",
+  "createdAt": "2025-01-30T14:30:00.000Z",
+  "data": {
+    "responseId": "resp_henry_demo_001",
+    "submissionId": "sub_henry_demo_001",
+    "respondentId": "user_demo_123",
+    "formId": "form_sales_automation",
+    "formName": "Captación de Leads - AI Automation",
+    "createdAt": "2025-01-30T14:30:00.000Z",
+    "fields": [
+      {
+        "key": "question_1",
+        "label": "¿Cuál es tu nombre completo?",
+        "type": "INPUT_TEXT",
+        "value": "María González"
+      },
+      {
+        "key": "question_2",
+        "label": "¿Cuál es tu email de trabajo?",
+        "type": "INPUT_EMAIL",
+        "value": "maria.gonzalez@techcorp.com"
+      },
+      {
+        "key": "question_3",
+        "label": "¿En qué empresa trabajas?",
+        "type": "INPUT_TEXT",
+        "value": "TechCorp Solutions"
+      },
+      {
+        "key": "question_4",
+        "label": "¿Cuál es el sitio web de tu empresa?",
+        "type": "INPUT_URL",
+        "value": "https://www.techcorp-solutions.com"
+      },
+      {
+        "key": "question_5",
+        "label": "¿Cuál es tu cargo?",
+        "type": "INPUT_TEXT",
+        "value": "Head of Marketing"
+      },
+      {
+        "key": "question_6",
+        "label": "¿Hay algo más que quieras compartir?",
+        "type": "TEXTAREA",
+        "value": "Estamos buscando soluciones de automatización con IA para mejorar nuestro proceso de prospección y ventas. Nos interesa especialmente herramientas que nos ayuden a personalizar la comunicación con leads potenciales."
+      }
+    ]
+  }
+}
