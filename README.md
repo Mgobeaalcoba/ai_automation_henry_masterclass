@@ -46,7 +46,7 @@ n8n-py --version
 
 ```bash
 # Exportar el workflow de la masterclass
-n8n-py get-workflow _fu3rrIxO_O60G9CvHDXN --output workflows/sales-automation-workflow.json
+n8n-py get-workflow [TU_WORKFLOW_ID] --output workflows/sales-automation-workflow.json
 
 # Importar a tu instancia de n8n
 n8n-py deploy workflows/sales-automation-workflow.json --activate
@@ -284,7 +284,9 @@ Al completar esta masterclass, los estudiantes podrán:
 
 ## 📄 Licencia
 
-Este proyecto es material educativo para la comunidad de Henry.
+Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
+
+Este es material educativo para la comunidad de Henry y puede ser usado libremente con atribución.
 
 ---
 
