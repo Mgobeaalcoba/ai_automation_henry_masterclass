@@ -89,8 +89,6 @@ actual-leads/
 # Notas personales
 NOTES.md
 TODO-personal.md
-*MasterClass*.md
-*MasterClass*.pdf
 
 # Reportes de auditoría (contienen datos sensibles históricos)
 SECURITY_AUDIT_REPORT.md
