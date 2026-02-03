@@ -1,5 +1,6 @@
 # Environment variables y configuración sensible
 .env
+.env.local
 CONFIG.env
 *.key
 *.pem
@@ -86,13 +87,35 @@ actual-leads/
 *.p12
 *.pfx
 
+# ========================================
+# ARCHIVOS MARKDOWN
+# Solo README.md y CHANGELOG.md en root
+# Solo README.md en cada clase
+# Solo script.md en marketing/materials/
+# ========================================
+
+# Excluir todos los archivos .md por defecto
+*.md
+
+# Permitir archivos .md específicos primero
+!README.md
+!CHANGELOG.md
+!marketing/README.md
+!ventas/README.md
+!marketing/materials/script.md
+
+# Luego excluir patrones específicos que NO afecten las excepciones
+*guion*.md
+*notas*.md
+*draft*.md
+
 # Notas personales
 NOTES.md
 TODO-personal.md
 
-# Reportes de auditoría (contienen datos sensibles históricos)
-SECURITY_AUDIT_REPORT.md
-
-# Security
-
-SECURITY_AUDIT_REPORT.md
+# Archivos de documentación obsoletos
+docs/
+QUICKSTART.md
+CONFIG_TEMPLATE.md
+PROJECT_STATUS.md
+SECURITY.md

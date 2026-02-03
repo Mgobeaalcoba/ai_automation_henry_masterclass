@@ -1,0 +1,15 @@
+{
+  "linkedin": "Los Vector Databases están redefiniendo cómo las aplicaciones de IA manejan datos.\n\nTres puntos clave que todo desarrollador debe conocer:\n\n• Búsqueda semántica vs. keyword matching: 40% más precisa\n• Escalabilidad: millones de vectores consultados en milisegundos\n• Casos de uso: RAG, sistemas de recomendación, detección de anomalías\n\n¿Ya estás usando embeddings en tus proyectos? ¿Qué desafíos encontraste?\n\n#AI #VectorDatabases #MachineLearning",
+  
+  "x": "1/5 🧵 Vector Databases: la infraestructura invisible detrás del boom de IA generativa.\n\n2/5 A diferencia de SQL, no buscan texto exacto. Buscan \"significado\" usando embeddings (vectores de 768+ dimensiones).\n\n3/5 El problema: comparar vectores es computacionalmente costoso. Solución: algoritmos ANN (Approximate Nearest Neighbor).\n\n4/5 Casos de uso real: ChatGPT con tus docs (RAG), Spotify recommendations, fraud detection en tiempo real.\n\n5/5 Herramientas populares: Pinecone, Weaviate, Qdrant, pgvector. La elección depende de tu stack y escala.",
+  
+  "newsletter": "Vector Databases están emergiendo como componente crítico en arquitecturas de IA. A diferencia de bases tradicionales, almacenan embeddings (representaciones numéricas de datos) y permiten búsquedas semánticas en microsegundos.\n\nEl principal caso de uso es RAG (Retrieval-Augmented Generation), donde modelos como GPT consultan documentos relevantes antes de responder. Empresas como Pinecone y Weaviate han levantado $100M+ para resolver el desafío de escalar búsquedas de similitud a billones de vectores.\n\nPara desarrolladores: si tu aplicación requiere búsqueda \"inteligente\" (no keyword matching), considera pgvector como punto de partida (extensión de PostgreSQL) antes de migrar a soluciones especializadas. El trade-off típico es costo vs. latencia.",
+  
+  "metadata": {
+    "source_url": "https://techcrunch.com/2026/02/01/vector-databases-ai-applications/",
+    "original_title": "The Rise of Vector Databases in AI Applications",
+    "generated_at": "2026-02-03T19:30:00.000Z",
+    "model_used": "z-ai/glm-4.5",
+    "user": "Mariano Gobea"
+  }
+}
