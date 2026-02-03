@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+    .header h1 { margin: 0; font-size: 24px; }
+    .alert-icon { font-size: 48px; margin-bottom: 10px; }
+    .content { padding: 30px; }
+    .ticker-badge { display: inline-block; background-color: #667eea; color: white; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 18px; margin-bottom: 20px; }
+    .recommendation-box { background-color: #4caf50; color: white; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0; }
+    .recommendation-box.sell { background-color: #f44336; }
+    .recommendation-box.hold { background-color: #ff9800; }
+    .recommendation-box h2 { margin: 0 0 10px 0; font-size: 28px; }
+    .score-badge { background-color: rgba(255,255,255,0.2); display: inline-block; padding: 10px 20px; border-radius: 20px; font-size: 20px; font-weight: bold; }
+    .reasoning-section { background-color: #f8f9fa; padding: 20px; border-left: 4px solid #667eea; margin: 20px 0; border-radius: 4px; }
+    .reasoning-section h3 { margin-top: 0; color: #333; }
+    .reasoning-section p { color: #555; line-height: 1.6; margin: 0; }
+    .source-section { margin-top: 30px; padding-top: 20px; border-top: 2px solid #e0e0e0; }
+    .source-link { display: inline-block; background-color: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin-top: 10px; }
+    .source-link:hover { background-color: #5568d3; }
+    .footer { background-color: #f8f9fa; padding: 20px; text-align: center; color: #777; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="alert-icon">🚨</div>
+      <h1>Alerta de Mercado Financiero</h1>
+    </div>
+    <div class="content">
+      <div style="text-align: center;">
+        <span class="ticker-badge">NVIDIA</span>
+      </div>
+      
+      <div class="recommendation-box">
+        <h2>BUY</h2>
+        <div class="score-badge">Score: 9/10</div>
+      </div>
+      
+      <div class="reasoning-section">
+        <h3>📊 Análisis del Analista</h3>
+        <p>NVIDIA reportó ingresos récord impulsados por demanda exponencial de chips de IA. El crecimiento de 200% YoY supera ampliamente las estimaciones del mercado. La guía para Q1 2026 sugiere que la tendencia continuará, con proyecciones de ingresos por encima del consenso de analistas. Los fundamentales son extremadamente sólidos: márgenes operativos en expansión, backlog de pedidos robusto y posición dominante en el mercado de aceleradores de IA. Recomendación de compra con alta convicción basada en momentum de ingresos y expansión de mercado.</p>
+      </div>
+      
+      <div class="source-section">
+        <h3 style="color: #333; margin-top: 0;">📰 Fuente de la Noticia</h3>
+        <p style="color: #555;">NVIDIA Announces Record-Breaking Q4 Earnings Driven by AI Chip Demand</p>
+        <a href="https://finance.yahoo.com/news/nvidia-q4-earnings-2024-180000123.html" class="source-link" target="_blank">Leer Artículo Completo</a>
+      </div>
+    </div>
+    <div class="footer">
+      <p>Este es un mensaje automático generado por tu sistema de monitoreo financiero con IA.</p>
+      <p>Powered by n8n AI Financial Monitor</p>
+    </div>
+  </div>
+</body>
+</html>

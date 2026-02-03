@@ -61,6 +61,33 @@ Automatizar el proceso completo de captación de leads: desde el formulario hast
 
 ---
 
+### 3. Finanzas: IA vs. Wall Street - Monitor de Tendencias
+
+**Fecha:** Jueves 12 de febrero, 2026 - 19:00 hs (Argentina)  
+**Duración:** 40 minutos  
+**Instructor:** Mariano Gobea Alcoba
+
+**[📂 Ver materiales y workflow completo →](finanzas/)**
+
+**Stack Tecnológico:**
+- n8n (orquestación de workflows)
+- RSS Feed (monitoreo de noticias 24/7)
+- Jina AI (web scraping limpio)
+- OpenRouter (modelos IA gratuitos)
+- Gmail (alertas automáticas)
+
+**Objetivo:**  
+Construir un sistema de monitoreo financiero que analiza noticias 24/7, evalúa sentiment (Bullish/Bearish/Neutral) y envía alertas solo cuando detecta señales de mercado significativas.
+
+**Lo que aprenderás:**
+- ✅ Monitoreo automatizado con RSS Feeds
+- ✅ Filtrado de noticias por tickers específicos
+- ✅ Análisis de sentiment financiero con IA
+- ✅ Estructuración de recomendaciones (BUY/SELL/HOLD)
+- ✅ Alertas condicionales vía email HTML
+
+---
+
 ## 📁 Estructura del Repositorio
 
 Cada clase es completamente independiente y auto-contenida:
@@ -75,11 +102,18 @@ ai_automation_henry_masterclass/
 │   ├── examples/           # Ejemplos de input/output
 │   └── scripts/            # Bookmarklet y scripts de testing
 │
-└── ventas/                 # Clase 2: Lead Automation
+├── ventas/                 # Clase 2: Lead Automation
+│   ├── README.md           # Guía completa de setup y uso
+│   ├── workflow.json       # Workflow de n8n listo para importar
+│   ├── materials/          # Slides de presentación
+│   ├── examples/           # Ejemplos de input/output
+│   └── scripts/            # Scripts de testing
+│
+└── finanzas/               # Clase 3: Financial Monitor
     ├── README.md           # Guía completa de setup y uso
     ├── workflow.json       # Workflow de n8n listo para importar
-    ├── materials/          # Slides de presentación
-    ├── examples/           # Ejemplos de input/output
+    ├── materials/          # Slides y guion de presentación
+    ├── examples/           # Ejemplos de RSS feeds y análisis
     └── scripts/            # Scripts de testing
 ```
 
@@ -220,3 +254,4 @@ Puede ser usado libremente con atribución para fines educativos.
 Empieza con la clase que más te interese:
 - [Marketing: Content Factory →](marketing/)
 - [Ventas: Lead Automation →](ventas/)
+- [Finanzas: Financial Monitor →](finanzas/)

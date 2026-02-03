@@ -4,6 +4,76 @@ Registro de cambios y actualizaciones del proyecto.
 
 ---
 
+## [2.1.0] - 2026-02-03
+
+### Nueva Clase: Finanzas - IA vs. Wall Street
+
+Agregada tercera masterclass sobre monitoreo financiero automático con análisis de sentiment.
+
+### ✨ Agregado
+
+#### Clase 3: Finanzas - Monitor de Tendencias Financieras
+
+**Materiales completos:**
+- `finanzas/README.md` - Guía completa de 900+ líneas
+- `finanzas/workflow.json` - Workflow n8n con 7 nodos (RSS Feed + Filter + Jina AI + AI Agent + Gmail)
+- `finanzas/materials/presentation.pdf` - Slides de la masterclass
+- `finanzas/materials/script.md` - Guion detallado con construcción paso a paso
+- `finanzas/examples/sample-rss-feed-item.json` - Ejemplo de noticia RSS
+- `finanzas/examples/sample-analysis-output.json` - Ejemplo de análisis de sentiment
+- `finanzas/examples/sample-email-template.html` - Template de alerta HTML
+- `finanzas/scripts/test-rss-feed.js` - Script para testear feeds RSS
+- `finanzas/scripts/test-ticker-filter.js` - Script para testear filtro de tickers
+
+**Stack tecnológico:**
+- n8n + RSS Feed + Jina AI + OpenRouter + Gmail
+
+**Objetivo:**
+- Monitorear noticias financieras 24/7
+- Analizar sentiment (Bullish/Bearish/Neutral) con IA
+- Enviar alertas solo para señales significativas
+- De leer 200 noticias al día a recibir 3-5 alertas relevantes
+
+**Workflow:**
+1. RSS Feed (Yahoo Finance) - Monitoreo cada hora
+2. Ticker Filter (JavaScript) - Filtra por tickers específicos
+3. Jina AI Reader - Limpia contenido de noticias
+4. AI Agent - Analiza sentiment y asigna score (-10 a +10)
+5. Output Parser - Estructura respuesta JSON
+6. Gmail - Envía alerta HTML con recomendación (BUY/SELL/HOLD)
+
+### 🔄 Actualizado
+
+**README.md (root)**
+- Agregada sección de Finanzas con descripción completa
+- Actualizada estructura del repositorio (3 clases)
+- Agregado enlace a `finanzas/` en quick links
+
+### 📊 Estadísticas del Proyecto
+
+**Ahora:**
+- 3 clases independientes (Marketing + Ventas + Finanzas)
+- 3 READMEs auto-contenidos (~2,500 líneas totales)
+- 3 workflows JSON completamente funcionales
+- 15 archivos de examples (JSONs, HTML)
+- 9 scripts de testing
+
+**Comparativa:**
+- v1.0.0: 1 clase
+- v2.0.0: 2 clases
+- v2.1.0: 3 clases (Marketing, Ventas, Finanzas)
+
+### 🎯 Cobertura de Casos de Uso
+
+El proyecto ahora cubre:
+1. **Marketing:** Generación de contenido multi-canal
+2. **Ventas:** Automatización de prospección y personalización
+3. **Finanzas:** Monitoreo de mercados y análisis de sentiment
+
+Tres áreas críticas de automatización con IA aplicada a negocios reales.
+
+---
+
 ## [2.0.0] - 2026-02-03
 
 ### REESTRUCTURACIÓN COMPLETA - Monorepo Multi-Clase

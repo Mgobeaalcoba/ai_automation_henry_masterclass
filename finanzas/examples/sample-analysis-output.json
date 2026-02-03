@@ -1,0 +1,14 @@
+{
+  "output": {
+    "score": 9,
+    "recommendation": "BUY",
+    "reasoning": "NVIDIA reportó ingresos récord impulsados por demanda exponencial de chips de IA. El crecimiento de 200% YoY supera ampliamente las estimaciones del mercado. La guía para Q1 2026 sugiere que la tendencia continuará, con proyecciones de ingresos por encima del consenso de analistas. Los fundamentales son extremadamente sólidos: márgenes operativos en expansión, backlog de pedidos robusto y posición dominante en el mercado de aceleradores de IA. Recomendación de compra con alta convicción basada en momentum de ingresos y expansión de mercado."
+  },
+  "ticker": "NVIDIA",
+  "source": {
+    "title": "NVIDIA Announces Record-Breaking Q4 Earnings Driven by AI Chip Demand",
+    "link": "https://finance.yahoo.com/news/nvidia-q4-earnings-2024-180000123.html",
+    "date": "2026-02-03T14:30:00.000Z"
+  },
+  "processed_at": "2026-02-03T14:35:12.000Z"
+}

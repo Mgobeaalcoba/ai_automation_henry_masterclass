@@ -102,7 +102,9 @@ actual-leads/
 !CHANGELOG.md
 !marketing/README.md
 !ventas/README.md
+!finanzas/README.md
 !marketing/materials/script.md
+!finanzas/materials/script.md
 
 # Luego excluir patrones específicos que NO afecten las excepciones
 *guion*.md
