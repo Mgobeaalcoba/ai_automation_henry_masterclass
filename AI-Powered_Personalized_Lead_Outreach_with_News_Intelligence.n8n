@@ -1,0 +1,624 @@
+{
+  "updatedAt": "2026-02-04T13:59:41.919Z",
+  "createdAt": "2026-01-29T11:43:27.135Z",
+  "id": "_fu3rrIxO_O60G9CvHDXN",
+  "name": "AI-Powered Personalized Lead Outreach with News Intelligence",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "tally-form-submission",
+        "options": {}
+      },
+      "id": "769da0eb-4360-4ee8-ba1a-5742c6c52fed",
+      "name": "Tally Form Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "73c9d56a-7e39-4b7e-bd9e-d82af8675982"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// 1. Obtenemos el array de campos del body de Tally\nconst fields = $json.body.data.fields;\n\n// 2. Buscamos el objeto que tiene el label \"Email\"\nconst emailField = fields.find(field => field.label === 'Email' || field.type === 'INPUT_EMAIL');\nconst email = emailField ? emailField.value : null;\n\n// 3. Si no hay email, devolvemos el error y el json original\nif (!email) {\n  return {\n    ...$json,\n    error: 'No email found in Tally fields'\n  };\n}\n\n// 4. Procesamos el dominio y el nombre de la empresa\nconst domain = email.split('@')[1];\nconst companyNameRaw = domain.split('.')[0];\n// Capitalizamos la primera letra (opcional, para que quede mejor)\nconst companyName = companyNameRaw.charAt(0).toUpperCase() + companyNameRaw.slice(1);\n\n// 5. Retornamos el objeto corregido\nreturn {\n  ...$json,\n  companyDomain: domain,\n  companyName: companyName,\n  email: email\n};"
+      },
+      "id": "5b050ebf-82d0-4d31-995f-e736df4174ae",
+      "name": "Extract Company Domain",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://google.serper.dev/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.body.data.fields[4].value }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "id": "1d0a7582-0032-4b32-87d5-d08882591641",
+      "name": "Search Company News (Serper)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        448,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "11UMqRUuh7bKn2LM",
+          "name": "Header Auth serperApiKey"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "==Lead Information:\n- Name: {{ $('Tally Form Webhook').item.json.body.data.fields.find(f => f.label === 'First name')?.value }} {{ $('Tally Form Webhook').item.json.body.data.fields.find(f => f.label === 'Last name')?.value }}\n- Email: {{ $('Tally Form Webhook').item.json.body.data.fields.find(f => f.label === 'Email')?.value }}\n- Company: {{ $('Extract Company Domain').item.json.companyName }}\n- Company Domain: {{ $('Extract Company Domain').item.json.companyDomain }}\n\nAll Research Results (Google Search):\n{{ JSON.stringify($json.organic) }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an expert sales outreach specialist who creates highly personalized cold emails.\n\nYour task is to:\n1. Analyze the recent news about the lead's company\n2. Identify the most relevant and recent news item that could serve as a conversation starter\n3. Craft a personalized email that:\n   - Opens with a genuine reference to the news (not generic congratulations)\n   - Shows you understand their business context\n   - Briefly introduces value proposition\n   - Includes a clear call-to-action\n   - Keeps the tone professional but conversational\n   - Is concise (under 150 words)\n\nGuidelines:\n- Use the news as a natural icebreaker, not a forced compliment\n- Be specific about which news item you're referencing\n- Avoid generic phrases like \"I came across your company\"\n- Make it about them, not about you\n- Keep subject line intriguing but professional (under 60 characters)\n\nReturn structured output with subject, emailBody, and newsReference fields."
+        }
+      },
+      "id": "49bf18a0-1854-4064-a6bc-e3a8aaf78d39",
+      "name": "Generate Personalized Email",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        704,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"subject\": {\n      \"type\": \"string\",\n      \"description\": \"Email subject line\"\n    },\n    \"emailBody\": {\n      \"type\": \"string\",\n      \"description\": \"Personalized email body with news-based icebreaker\"\n    },\n    \"newsReference\": {\n      \"type\": \"string\",\n      \"description\": \"The specific news item referenced\"\n    }\n  }\n}",
+        "autoFix": true
+      },
+      "id": "bac67342-c9f2-4801-9334-03f145c92c9e",
+      "name": "Email Structure Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        800,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "email": "={{ $('Extract Company Domain').item.json.email }}",
+        "additionalFields": {
+          "companyName": "={{ $('Extract Company Domain').item.json.body.data.fields[4].value }}",
+          "customPropertiesUi": {
+            "customPropertiesValues": [
+              {
+                "property": "personalized_email_subject",
+                "value": "={{ $json.output.subject }}"
+              },
+              {
+                "property": "personalized_email_body",
+                "value": "={{ $json.output.emailBody }}"
+              },
+              {
+                "property": "=news_reference",
+                "value": "={{ $json.output.newsReference }}"
+              }
+            ]
+          },
+          "firstName": "={{ $('Extract Company Domain').item.json.body.data.fields[0].value }}",
+          "lastName": "={{ $('Extract Company Domain').item.json.body.data.fields[1].value }}"
+        },
+        "options": {}
+      },
+      "id": "01c0beca-8990-4a09-a0b1-2837f0309487",
+      "name": "Create/Update HubSpot Contact",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        1168,
+        0
+      ],
+      "credentials": {
+        "hubspotOAuth2Api": {
+          "id": "RcTCXnC3NZhk5jVF",
+          "name": "HubSpot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "z-ai/glm-4.5-air:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        672,
+        224
+      ],
+      "id": "1287c1e9-4a7e-426d-9338-7b51a559d77a",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "xZpAyjDIWgQms8rD",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        880,
+        432
+      ],
+      "id": "68356fce-b660-4993-9268-3c66660b3236",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "xZpAyjDIWgQms8rD",
+          "name": "OpenRouter account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Tally Form Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Company Domain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Company Domain": {
+      "main": [
+        [
+          {
+            "node": "Search Company News (Serper)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Company News (Serper)": {
+      "main": [
+        [
+          {
+            "node": "Generate Personalized Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Structure Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Generate Personalized Email",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Personalized Email": {
+      "main": [
+        [
+          {
+            "node": "Create/Update HubSpot Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Personalized Email",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Email Structure Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "f11c87b9-4421-4d94-a2d9-4e3271c0c57e",
+  "activeVersionId": "f11c87b9-4421-4d94-a2d9-4e3271c0c57e",
+  "versionCounter": 59,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-01-29T11:43:27.137Z",
+      "createdAt": "2026-01-29T11:43:27.137Z",
+      "role": "workflow:owner",
+      "workflowId": "_fu3rrIxO_O60G9CvHDXN",
+      "projectId": "VwsneyzwRufZF4gJ",
+      "project": {
+        "updatedAt": "2026-01-29T11:41:39.000Z",
+        "createdAt": "2026-01-29T11:40:48.290Z",
+        "id": "VwsneyzwRufZF4gJ",
+        "name": "MasterClass AI Automation",
+        "type": "team",
+        "icon": {
+          "type": "emoji",
+          "value": "🚀"
+        },
+        "description": "Automations for Masterclass Series in Henry",
+        "creatorId": "7e93e9fa-ed56-44be-9665-0a8ad9e738d2",
+        "projectRelations": [
+          {
+            "updatedAt": "2026-01-29T11:40:48.292Z",
+            "createdAt": "2026-01-29T11:40:48.292Z",
+            "userId": "7e93e9fa-ed56-44be-9665-0a8ad9e738d2",
+            "projectId": "VwsneyzwRufZF4gJ",
+            "user": {
+              "updatedAt": "2026-02-04T01:04:44.000Z",
+              "createdAt": "2025-06-12T23:41:13.919Z",
+              "id": "7e93e9fa-ed56-44be-9665-0a8ad9e738d2",
+              "email": "gobeamariano@gmail.com",
+              "firstName": "Mariano",
+              "lastName": "Daniel Gobea Alcoba",
+              "personalizationAnswers": null,
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "QF2NcgBLDDiV9w9R",
+                "userActivatedAt": 1761609393508,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1762435530923
+                },
+                "userClaimedAiCredits": true,
+                "dismissedCallouts": {
+                  "aiAgentStarterCallout": true
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": true,
+              "lastActiveAt": "2026-02-04",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-02-04T13:38:20.000Z",
+    "createdAt": "2026-02-04T13:36:50.163Z",
+    "versionId": "f11c87b9-4421-4d94-a2d9-4e3271c0c57e",
+    "workflowId": "_fu3rrIxO_O60G9CvHDXN",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "tally-form-submission",
+          "options": {}
+        },
+        "id": "769da0eb-4360-4ee8-ba1a-5742c6c52fed",
+        "name": "Tally Form Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          0,
+          0
+        ],
+        "webhookId": "73c9d56a-7e39-4b7e-bd9e-d82af8675982"
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "// 1. Obtenemos el array de campos del body de Tally\nconst fields = $json.body.data.fields;\n\n// 2. Buscamos el objeto que tiene el label \"Email\"\nconst emailField = fields.find(field => field.label === 'Email' || field.type === 'INPUT_EMAIL');\nconst email = emailField ? emailField.value : null;\n\n// 3. Si no hay email, devolvemos el error y el json original\nif (!email) {\n  return {\n    ...$json,\n    error: 'No email found in Tally fields'\n  };\n}\n\n// 4. Procesamos el dominio y el nombre de la empresa\nconst domain = email.split('@')[1];\nconst companyNameRaw = domain.split('.')[0];\n// Capitalizamos la primera letra (opcional, para que quede mejor)\nconst companyName = companyNameRaw.charAt(0).toUpperCase() + companyNameRaw.slice(1);\n\n// 5. Retornamos el objeto corregido\nreturn {\n  ...$json,\n  companyDomain: domain,\n  companyName: companyName,\n  email: email\n};"
+        },
+        "id": "5b050ebf-82d0-4d31-995f-e736df4174ae",
+        "name": "Extract Company Domain",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          224,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://google.serper.dev/search",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "q",
+                "value": "={{ $json.body.data.fields[4].value }}"
+              }
+            ]
+          },
+          "options": {
+            "redirect": {
+              "redirect": {}
+            }
+          }
+        },
+        "id": "1d0a7582-0032-4b32-87d5-d08882591641",
+        "name": "Search Company News (Serper)",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          448,
+          0
+        ],
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "11UMqRUuh7bKn2LM",
+            "name": "Header Auth serperApiKey"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "==Lead Information:\n- Name: {{ $('Tally Form Webhook').item.json.body.data.fields.find(f => f.label === 'First name')?.value }} {{ $('Tally Form Webhook').item.json.body.data.fields.find(f => f.label === 'Last name')?.value }}\n- Email: {{ $('Tally Form Webhook').item.json.body.data.fields.find(f => f.label === 'Email')?.value }}\n- Company: {{ $('Extract Company Domain').item.json.companyName }}\n- Company Domain: {{ $('Extract Company Domain').item.json.companyDomain }}\n\nAll Research Results (Google Search):\n{{ JSON.stringify($json.organic) }}",
+          "hasOutputParser": true,
+          "options": {
+            "systemMessage": "You are an expert sales outreach specialist who creates highly personalized cold emails.\n\nYour task is to:\n1. Analyze the recent news about the lead's company\n2. Identify the most relevant and recent news item that could serve as a conversation starter\n3. Craft a personalized email that:\n   - Opens with a genuine reference to the news (not generic congratulations)\n   - Shows you understand their business context\n   - Briefly introduces value proposition\n   - Includes a clear call-to-action\n   - Keeps the tone professional but conversational\n   - Is concise (under 150 words)\n\nGuidelines:\n- Use the news as a natural icebreaker, not a forced compliment\n- Be specific about which news item you're referencing\n- Avoid generic phrases like \"I came across your company\"\n- Make it about them, not about you\n- Keep subject line intriguing but professional (under 60 characters)\n\nReturn structured output with subject, emailBody, and newsReference fields."
+          }
+        },
+        "id": "49bf18a0-1854-4064-a6bc-e3a8aaf78d39",
+        "name": "Generate Personalized Email",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          704,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "schemaType": "manual",
+          "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"subject\": {\n      \"type\": \"string\",\n      \"description\": \"Email subject line\"\n    },\n    \"emailBody\": {\n      \"type\": \"string\",\n      \"description\": \"Personalized email body with news-based icebreaker\"\n    },\n    \"newsReference\": {\n      \"type\": \"string\",\n      \"description\": \"The specific news item referenced\"\n    }\n  }\n}",
+          "autoFix": true
+        },
+        "id": "bac67342-c9f2-4801-9334-03f145c92c9e",
+        "name": "Email Structure Parser",
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.3,
+        "position": [
+          800,
+          224
+        ]
+      },
+      {
+        "parameters": {
+          "authentication": "oAuth2",
+          "email": "={{ $('Extract Company Domain').item.json.email }}",
+          "additionalFields": {
+            "companyName": "={{ $('Extract Company Domain').item.json.body.data.fields[4].value }}",
+            "customPropertiesUi": {
+              "customPropertiesValues": [
+                {
+                  "property": "personalized_email_subject",
+                  "value": "={{ $json.output.subject }}"
+                },
+                {
+                  "property": "personalized_email_body",
+                  "value": "={{ $json.output.emailBody }}"
+                },
+                {
+                  "property": "=news_reference",
+                  "value": "={{ $json.output.newsReference }}"
+                }
+              ]
+            },
+            "firstName": "={{ $('Extract Company Domain').item.json.body.data.fields[0].value }}",
+            "lastName": "={{ $('Extract Company Domain').item.json.body.data.fields[1].value }}"
+          },
+          "options": {}
+        },
+        "id": "01c0beca-8990-4a09-a0b1-2837f0309487",
+        "name": "Create/Update HubSpot Contact",
+        "type": "n8n-nodes-base.hubspot",
+        "typeVersion": 2.2,
+        "position": [
+          1168,
+          0
+        ],
+        "credentials": {
+          "hubspotOAuth2Api": {
+            "id": "RcTCXnC3NZhk5jVF",
+            "name": "HubSpot account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "z-ai/glm-4.5-air:free",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "typeVersion": 1,
+        "position": [
+          672,
+          224
+        ],
+        "id": "1287c1e9-4a7e-426d-9338-7b51a559d77a",
+        "name": "OpenRouter Chat Model",
+        "credentials": {
+          "openRouterApi": {
+            "id": "xZpAyjDIWgQms8rD",
+            "name": "OpenRouter account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "openai/gpt-oss-120b:free",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "typeVersion": 1,
+        "position": [
+          880,
+          432
+        ],
+        "id": "68356fce-b660-4993-9268-3c66660b3236",
+        "name": "OpenRouter Chat Model1",
+        "credentials": {
+          "openRouterApi": {
+            "id": "xZpAyjDIWgQms8rD",
+            "name": "OpenRouter account"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Tally Form Webhook": {
+        "main": [
+          [
+            {
+              "node": "Extract Company Domain",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Company Domain": {
+        "main": [
+          [
+            {
+              "node": "Search Company News (Serper)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Search Company News (Serper)": {
+        "main": [
+          [
+            {
+              "node": "Generate Personalized Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Email Structure Parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "Generate Personalized Email",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Personalized Email": {
+        "main": [
+          [
+            {
+              "node": "Create/Update HubSpot Contact",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Generate Personalized Email",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Email Structure Parser",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Mariano Daniel Gobea Alcoba",
+    "name": "Version f11c87b9",
+    "description": "",
+    "autosaved": true,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-02-04T13:38:20.697Z",
+        "id": 13,
+        "workflowId": "_fu3rrIxO_O60G9CvHDXN",
+        "versionId": "f11c87b9-4421-4d94-a2d9-4e3271c0c57e",
+        "event": "activated",
+        "userId": "7e93e9fa-ed56-44be-9665-0a8ad9e738d2"
+      }
+    ]
+  }
+}
