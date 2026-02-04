@@ -1,84 +1,41 @@
 {
-  "id": "_fu3rrIxO_O60G9CvHDXN",
-  "name": "AI-Powered Personalized Lead Outreach with News Intelligence",
-  "active": false,
   "nodes": [
     {
-      "name": "Tally Form Webhook",
-      "type": "n8n-nodes-base.webhook",
-      "position": [
-        0.0,
-        0.0
-      ],
       "parameters": {
         "httpMethod": "POST",
         "path": "tally-form-submission",
         "options": {}
       },
-      "typeVersion": 2.1,
-      "disabled": false,
       "id": "769da0eb-4360-4ee8-ba1a-5742c6c52fed",
+      "name": "Tally Form Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
       "webhookId": "YOUR_WEBHOOK_ID_HERE"
     },
     {
-      "name": "Workflow Configuration",
-      "type": "n8n-nodes-base.set",
-      "position": [
-        224.0,
-        0.0
-      ],
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "id-1",
-              "name": "serperApiKey",
-              "value": "YOUR_SERPER_API_KEY_HERE",
-              "type": "string"
-            }
-          ]
-        },
-        "includeOtherFields": true,
-        "options": {}
-      },
-      "typeVersion": 3.4,
-      "disabled": false,
-      "id": "ea88ca36-51ef-4abb-b001-81d564a4c424"
-    },
-    {
-      "name": "Extract Company Domain",
-      "type": "n8n-nodes-base.code",
-      "position": [
-        448.0,
-        0.0
-      ],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "// 1. Obtenemos el array de campos del body de Tally\nconst fields = $json.body.data.fields;\n\n// 2. Buscamos el objeto que tiene el label \"Email\"\nconst emailField = fields.find(field => field.label === 'Email' || field.type === 'INPUT_EMAIL');\nconst email = emailField ? emailField.value : null;\n\n// 3. Si no hay email, devolvemos el error y el json original\nif (!email) {\n  return {\n    ...$json,\n    error: 'No email found in Tally fields'\n  };\n}\n\n// 4. Procesamos el dominio y el nombre de la empresa\nconst domain = email.split('@')[1];\nconst companyNameRaw = domain.split('.')[0];\n// Capitalizamos la primera letra (opcional, para que quede mejor)\nconst companyName = companyNameRaw.charAt(0).toUpperCase() + companyNameRaw.slice(1);\n\n// 5. Retornamos el objeto corregido\nreturn {\n  ...$json,\n  companyDomain: domain,\n  companyName: companyName\n};"
+        "jsCode": "// 1. Obtenemos el array de campos del body de Tally\nconst fields = $json.body.data.fields;\n\n// 2. Buscamos el objeto que tiene el label \"Email\"\nconst emailField = fields.find(field => field.label === 'Email' || field.type === 'INPUT_EMAIL');\nconst email = emailField ? emailField.value : null;\n\n// 3. Si no hay email, devolvemos el error y el json original\nif (!email) {\n  return {\n    ...$json,\n    error: 'No email found in Tally fields'\n  };\n}\n\n// 4. Procesamos el dominio y el nombre de la empresa\nconst domain = email.split('@')[1];\nconst companyNameRaw = domain.split('.')[0];\n// Capitalizamos la primera letra (opcional, para que quede mejor)\nconst companyName = companyNameRaw.charAt(0).toUpperCase() + companyNameRaw.slice(1);\n\n// 5. Retornamos el objeto corregido\nreturn {\n  ...$json,\n  companyDomain: domain,\n  companyName: companyName,\n  email: email\n};"
       },
-      "typeVersion": 2.0,
-      "disabled": false,
-      "id": "5b050ebf-82d0-4d31-995f-e736df4174ae"
+      "id": "5b050ebf-82d0-4d31-995f-e736df4174ae",
+      "name": "Extract Company Domain",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ]
     },
     {
-      "name": "Search Company News (Serper)",
-      "type": "n8n-nodes-base.httpRequest",
-      "position": [
-        672.0,
-        0.0
-      ],
       "parameters": {
         "method": "POST",
         "url": "https://google.serper.dev/search",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "X-API-KEY",
-              "value": "={{ $json.serperApiKey }}"
-            }
-          ]
-        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
@@ -94,17 +51,22 @@
           }
         }
       },
+      "id": "1d0a7582-0032-4b32-87d5-d08882591641",
+      "name": "Search Company News (Serper)",
+      "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
-      "disabled": false,
-      "id": "1d0a7582-0032-4b32-87d5-d08882591641"
+      "position": [
+        448,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "YOUR_SERPER_CREDENTIAL_ID",
+          "name": "Serper API Key"
+        }
+      }
     },
     {
-      "name": "Generate Personalized Email",
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "position": [
-        928.0,
-        0.0
-      ],
       "parameters": {
         "promptType": "define",
         "text": "==Lead Information:\n- Name: {{ $('Tally Form Webhook').item.json.body.data.fields.find(f => f.label === 'First name')?.value }} {{ $('Tally Form Webhook').item.json.body.data.fields.find(f => f.label === 'Last name')?.value }}\n- Email: {{ $('Tally Form Webhook').item.json.body.data.fields.find(f => f.label === 'Email')?.value }}\n- Company: {{ $('Extract Company Domain').item.json.companyName }}\n- Company Domain: {{ $('Extract Company Domain').item.json.companyDomain }}\n\nAll Research Results (Google Search):\n{{ JSON.stringify($json.organic) }}",
@@ -113,38 +75,36 @@
           "systemMessage": "You are an expert sales outreach specialist who creates highly personalized cold emails.\n\nYour task is to:\n1. Analyze the recent news about the lead's company\n2. Identify the most relevant and recent news item that could serve as a conversation starter\n3. Craft a personalized email that:\n   - Opens with a genuine reference to the news (not generic congratulations)\n   - Shows you understand their business context\n   - Briefly introduces value proposition\n   - Includes a clear call-to-action\n   - Keeps the tone professional but conversational\n   - Is concise (under 150 words)\n\nGuidelines:\n- Use the news as a natural icebreaker, not a forced compliment\n- Be specific about which news item you're referencing\n- Avoid generic phrases like \"I came across your company\"\n- Make it about them, not about you\n- Keep subject line intriguing but professional (under 60 characters)\n\nReturn structured output with subject, emailBody, and newsReference fields."
         }
       },
+      "id": "49bf18a0-1854-4064-a6bc-e3a8aaf78d39",
+      "name": "Generate Personalized Email",
+      "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
-      "disabled": false,
-      "id": "49bf18a0-1854-4064-a6bc-e3a8aaf78d39"
+      "position": [
+        704,
+        0
+      ]
     },
     {
-      "name": "Email Structure Parser",
-      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
-      "position": [
-        1024.0,
-        224.0
-      ],
       "parameters": {
         "schemaType": "manual",
         "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"subject\": {\n      \"type\": \"string\",\n      \"description\": \"Email subject line\"\n    },\n    \"emailBody\": {\n      \"type\": \"string\",\n      \"description\": \"Personalized email body with news-based icebreaker\"\n    },\n    \"newsReference\": {\n      \"type\": \"string\",\n      \"description\": \"The specific news item referenced\"\n    }\n  }\n}",
         "autoFix": true
       },
+      "id": "bac67342-c9f2-4801-9334-03f145c92c9e",
+      "name": "Email Structure Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
-      "disabled": false,
-      "id": "bac67342-c9f2-4801-9334-03f145c92c9e"
+      "position": [
+        800,
+        224
+      ]
     },
     {
-      "name": "Create/Update HubSpot Contact",
-      "type": "n8n-nodes-base.hubspot",
-      "position": [
-        1392.0,
-        0.0
-      ],
       "parameters": {
         "authentication": "oAuth2",
-        "email": "={{ $('Workflow Configuration').item.json.body.data.fields[2].value }}",
+        "email": "={{ $('Extract Company Domain').item.json.email }}",
         "additionalFields": {
-          "companyName": "={{ $('Workflow Configuration').item.json.body.data.fields[4].value }}",
+          "companyName": "={{ $('Extract Company Domain').item.json.body.data.fields[4].value }}",
           "customPropertiesUi": {
             "customPropertiesValues": [
               {
@@ -161,77 +121,69 @@
               }
             ]
           },
-          "firstName": "={{ $('Workflow Configuration').item.json.body.data.fields[0].value }}",
-          "lastName": "={{ $('Workflow Configuration').item.json.body.data.fields[1].value }}"
+          "firstName": "={{ $('Extract Company Domain').item.json.body.data.fields[0].value }}",
+          "lastName": "={{ $('Extract Company Domain').item.json.body.data.fields[1].value }}"
         },
         "options": {}
       },
+      "id": "01c0beca-8990-4a09-a0b1-2837f0309487",
+      "name": "Create/Update HubSpot Contact",
+      "type": "n8n-nodes-base.hubspot",
       "typeVersion": 2.2,
+      "position": [
+        1168,
+        0
+      ],
       "credentials": {
         "hubspotOAuth2Api": {
           "id": "YOUR_HUBSPOT_CREDENTIAL_ID",
-          "name": "HubSpot account"
+          "name": "HubSpot API"
         }
-      },
-      "disabled": false,
-      "id": "01c0beca-8990-4a09-a0b1-2837f0309487"
+      }
     },
     {
-      "name": "OpenRouter Chat Model",
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
-      "position": [
-        896.0,
-        224.0
-      ],
       "parameters": {
         "model": "z-ai/glm-4.5-air:free",
         "options": {}
       },
-      "typeVersion": 1.0,
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        672,
+        224
+      ],
+      "id": "1287c1e9-4a7e-426d-9338-7b51a559d77a",
+      "name": "OpenRouter Chat Model",
       "credentials": {
         "openRouterApi": {
           "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
-          "name": "OpenRouter account"
+          "name": "OpenRouter API"
         }
-      },
-      "disabled": false,
-      "id": "1287c1e9-4a7e-426d-9338-7b51a559d77a"
+      }
     },
     {
-      "name": "OpenRouter Chat Model1",
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
-      "position": [
-        1104.0,
-        432.0
-      ],
       "parameters": {
         "model": "openai/gpt-oss-120b:free",
         "options": {}
       },
-      "typeVersion": 1.0,
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        880,
+        432
+      ],
+      "id": "68356fce-b660-4993-9268-3c66660b3236",
+      "name": "OpenRouter Chat Model1",
       "credentials": {
         "openRouterApi": {
           "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
-          "name": "OpenRouter account"
+          "name": "OpenRouter API"
         }
-      },
-      "disabled": false,
-      "id": "68356fce-b660-4993-9268-3c66660b3236"
+      }
     }
   ],
   "connections": {
     "Tally Form Webhook": {
-      "main": [
-        [
-          {
-            "node": "Workflow Configuration",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Workflow Configuration": {
       "main": [
         [
           {
@@ -264,23 +216,23 @@
         ]
       ]
     },
-    "Email Structure Parser": {
-      "ai_outputParser": [
-        [
-          {
-            "node": "Generate Personalized Email",
-            "type": "ai_outputParser",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Generate Personalized Email": {
       "main": [
         [
           {
             "node": "Create/Update HubSpot Contact",
             "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Structure Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Generate Personalized Email",
+            "type": "ai_outputParser",
             "index": 0
           }
         ]
@@ -309,581 +261,9 @@
       ]
     }
   },
-  "settings": {
-    "executionOrder": "v1",
-    "availableInMCP": false
-  },
-  "tags": [],
-  "createdAt": "2026-01-29T11:43:27.135000Z",
-  "updatedAt": "2026-01-29T12:57:07.524000Z",
-  "isArchived": false,
+  "pinData": {},
   "meta": {
-    "templateCredsSetupCompleted": true
-  },
-  "pinData": {
-    "Tally Form Webhook": [
-      {
-        "json": {
-          "headers": {
-            "host": "your-n8n-instance.app.n8n.cloud",
-            "user-agent": "Tally Webhooks",
-            "content-length": "1668",
-            "accept": "application/json, text/plain, */*",
-            "accept-encoding": "gzip, br",
-            "baggage": "sentry-environment=production,sentry-release=b7ffa1bedb218b3bc33d342b08f7e0478831a84c,sentry-public_key=6af4b6673f1648edaa8fef3f2ca43405,sentry-trace_id=b3957b052488445c92dc0c99502efbfa,sentry-org_id=407628",
-            "cdn-loop": "cloudflare; loops=1; subreqs=1",
-            "cf-connecting-ip": "34.96.62.130",
-            "cf-ew-via": "15",
-            "cf-ipcountry": "BE",
-            "cf-ray": "9c58b50ce0030036-LHR",
-            "cf-visitor": "{\"scheme\":\"https\"}",
-            "cf-worker": "n8n.cloud",
-            "content-type": "application/json",
-            "sentry-trace": "b3957b052488445c92dc0c99502efbfa-b612549df3c7f24a",
-            "x-forwarded-for": "34.96.62.130, 172.71.178.113",
-            "x-forwarded-host": "your-n8n-instance.app.n8n.cloud",
-            "x-forwarded-port": "443",
-            "x-forwarded-proto": "https",
-            "x-forwarded-server": "traefik-prod-users-gwc-40-669b86c79-64tnz",
-            "x-is-trusted": "yes",
-            "x-real-ip": "34.96.62.130"
-          },
-          "params": {},
-          "query": {},
-          "body": {
-            "eventId": "48ced773-d73a-4f1f-81fe-249e67db20ef",
-            "eventType": "FORM_RESPONSE",
-            "createdAt": "2026-01-29T11:53:04.488Z",
-            "data": {
-              "responseId": "44MJJgY",
-              "submissionId": "44MJJgY",
-              "respondentId": "5Bj1doE",
-              "formId": "vGPQy8",
-              "formName": "Contact Us - MGA Tech Consulting",
-              "createdAt": "2026-01-29T11:53:04.000Z",
-              "fields": [
-                {
-                  "key": "question_DNGXqZ",
-                  "label": "First name",
-                  "type": "INPUT_TEXT",
-                  "value": "John"
-                },
-                {
-                  "key": "question_lyE0av",
-                  "label": "Last name",
-                  "type": "INPUT_TEXT",
-                  "value": "Doe"
-                },
-                {
-                  "key": "question_R09ZWj",
-                  "label": "Email",
-                  "type": "INPUT_EMAIL",
-                  "value": "example@example.com"
-                },
-                {
-                  "key": "question_V069py",
-                  "label": "Job title",
-                  "type": "INPUT_TEXT",
-                  "value": "Data & Analytics Tech Lead"
-                },
-                {
-                  "key": "question_oyj09x",
-                  "label": "Company name",
-                  "type": "INPUT_TEXT",
-                  "value": "MGA Tech Consulting"
-                },
-                {
-                  "key": "question_GzPoek",
-                  "label": "Company size",
-                  "type": "DROPDOWN",
-                  "value": [
-                    "01b1ee31-f2b3-4caf-ba0f-44750f7dcce4"
-                  ],
-                  "options": [
-                    {
-                      "id": "01b1ee31-f2b3-4caf-ba0f-44750f7dcce4",
-                      "text": "1-10"
-                    },
-                    {
-                      "id": "a1e9b02d-80d1-4291-a21a-76938f311c53",
-                      "text": "10-100"
-                    },
-                    {
-                      "id": "7737b4a4-f430-40b3-be9f-578935f7e2e7",
-                      "text": "100-1000"
-                    },
-                    {
-                      "id": "a1cf09b4-a3b5-4b21-a53e-34148726778d",
-                      "text": "1000 +"
-                    }
-                  ]
-                },
-                {
-                  "key": "question_zq60Lk",
-                  "label": "Company webpage",
-                  "type": "INPUT_LINK",
-                  "value": "https://example.com/company-website"
-                },
-                {
-                  "key": "question_OzNjQg",
-                  "label": null,
-                  "type": "CHECKBOXES",
-                  "value": null,
-                  "options": [
-                    {
-                      "id": "d5ac5fee-85e0-4c75-b884-eac154ad3251",
-                      "text": "The latest news about our company in your inbox? Sign me up!"
-                    }
-                  ]
-                },
-                {
-                  "key": "question_OzNjQg_d5ac5fee-85e0-4c75-b884-eac154ad3251",
-                  "label": "Checkbox (The latest news about our company in your inbox? Sign me up!)",
-                  "type": "CHECKBOXES",
-                  "value": null
-                }
-              ]
-            }
-          },
-          "webhookUrl": "https://your-n8n-instance.app.n8n.cloud/webhook-test/tally-form-submission",
-          "executionMode": "test"
-        },
-        "pairedItem": {
-          "item": 0
-        }
-      }
-    ],
-    "Workflow Configuration": [
-      {
-        "json": {
-          "headers": {
-            "host": "your-n8n-instance.app.n8n.cloud",
-            "user-agent": "Tally Webhooks",
-            "content-length": "1668",
-            "accept": "application/json, text/plain, */*",
-            "accept-encoding": "gzip, br",
-            "baggage": "sentry-environment=production,sentry-release=b7ffa1bedb218b3bc33d342b08f7e0478831a84c,sentry-public_key=6af4b6673f1648edaa8fef3f2ca43405,sentry-trace_id=b3957b052488445c92dc0c99502efbfa,sentry-org_id=407628",
-            "cdn-loop": "cloudflare; loops=1; subreqs=1",
-            "cf-connecting-ip": "34.96.62.130",
-            "cf-ew-via": "15",
-            "cf-ipcountry": "BE",
-            "cf-ray": "9c58b50ce0030036-LHR",
-            "cf-visitor": "{\"scheme\":\"https\"}",
-            "cf-worker": "n8n.cloud",
-            "content-type": "application/json",
-            "sentry-trace": "b3957b052488445c92dc0c99502efbfa-b612549df3c7f24a",
-            "x-forwarded-for": "34.96.62.130, 172.71.178.113",
-            "x-forwarded-host": "your-n8n-instance.app.n8n.cloud",
-            "x-forwarded-port": "443",
-            "x-forwarded-proto": "https",
-            "x-forwarded-server": "traefik-prod-users-gwc-40-669b86c79-64tnz",
-            "x-is-trusted": "yes",
-            "x-real-ip": "34.96.62.130"
-          },
-          "params": {},
-          "query": {},
-          "body": {
-            "eventId": "48ced773-d73a-4f1f-81fe-249e67db20ef",
-            "eventType": "FORM_RESPONSE",
-            "createdAt": "2026-01-29T11:53:04.488Z",
-            "data": {
-              "responseId": "44MJJgY",
-              "submissionId": "44MJJgY",
-              "respondentId": "5Bj1doE",
-              "formId": "vGPQy8",
-              "formName": "Contact Us - MGA Tech Consulting",
-              "createdAt": "2026-01-29T11:53:04.000Z",
-              "fields": [
-                {
-                  "key": "question_DNGXqZ",
-                  "label": "First name",
-                  "type": "INPUT_TEXT",
-                  "value": "John"
-                },
-                {
-                  "key": "question_lyE0av",
-                  "label": "Last name",
-                  "type": "INPUT_TEXT",
-                  "value": "Doe"
-                },
-                {
-                  "key": "question_R09ZWj",
-                  "label": "Email",
-                  "type": "INPUT_EMAIL",
-                  "value": "example@example.com"
-                },
-                {
-                  "key": "question_V069py",
-                  "label": "Job title",
-                  "type": "INPUT_TEXT",
-                  "value": "Data & Analytics Tech Lead"
-                },
-                {
-                  "key": "question_oyj09x",
-                  "label": "Company name",
-                  "type": "INPUT_TEXT",
-                  "value": "MGA Tech Consulting"
-                },
-                {
-                  "key": "question_GzPoek",
-                  "label": "Company size",
-                  "type": "DROPDOWN",
-                  "value": [
-                    "01b1ee31-f2b3-4caf-ba0f-44750f7dcce4"
-                  ],
-                  "options": [
-                    {
-                      "id": "01b1ee31-f2b3-4caf-ba0f-44750f7dcce4",
-                      "text": "1-10"
-                    },
-                    {
-                      "id": "a1e9b02d-80d1-4291-a21a-76938f311c53",
-                      "text": "10-100"
-                    },
-                    {
-                      "id": "7737b4a4-f430-40b3-be9f-578935f7e2e7",
-                      "text": "100-1000"
-                    },
-                    {
-                      "id": "a1cf09b4-a3b5-4b21-a53e-34148726778d",
-                      "text": "1000 +"
-                    }
-                  ]
-                },
-                {
-                  "key": "question_zq60Lk",
-                  "label": "Company webpage",
-                  "type": "INPUT_LINK",
-                  "value": "https://example.com/company-website"
-                },
-                {
-                  "key": "question_OzNjQg",
-                  "label": null,
-                  "type": "CHECKBOXES",
-                  "value": null,
-                  "options": [
-                    {
-                      "id": "d5ac5fee-85e0-4c75-b884-eac154ad3251",
-                      "text": "The latest news about our company in your inbox? Sign me up!"
-                    }
-                  ]
-                },
-                {
-                  "key": "question_OzNjQg_d5ac5fee-85e0-4c75-b884-eac154ad3251",
-                  "label": "Checkbox (The latest news about our company in your inbox? Sign me up!)",
-                  "type": "CHECKBOXES",
-                  "value": null
-                }
-              ]
-            }
-          },
-          "webhookUrl": "https://your-n8n-instance.app.n8n.cloud/webhook-test/tally-form-submission",
-          "executionMode": "test",
-          "serperApiKey": "YOUR_SERPER_API_KEY_HERE"
-        },
-        "pairedItem": {
-          "item": 0
-        }
-      }
-    ],
-    "Extract Company Domain": [
-      {
-        "json": {
-          "headers": {
-            "host": "your-n8n-instance.app.n8n.cloud",
-            "user-agent": "Tally Webhooks",
-            "content-length": "1668",
-            "accept": "application/json, text/plain, */*",
-            "accept-encoding": "gzip, br",
-            "baggage": "sentry-environment=production,sentry-release=b7ffa1bedb218b3bc33d342b08f7e0478831a84c,sentry-public_key=6af4b6673f1648edaa8fef3f2ca43405,sentry-trace_id=b3957b052488445c92dc0c99502efbfa,sentry-org_id=407628",
-            "cdn-loop": "cloudflare; loops=1; subreqs=1",
-            "cf-connecting-ip": "34.96.62.130",
-            "cf-ew-via": "15",
-            "cf-ipcountry": "BE",
-            "cf-ray": "9c58b50ce0030036-LHR",
-            "cf-visitor": "{\"scheme\":\"https\"}",
-            "cf-worker": "n8n.cloud",
-            "content-type": "application/json",
-            "sentry-trace": "b3957b052488445c92dc0c99502efbfa-b612549df3c7f24a",
-            "x-forwarded-for": "34.96.62.130, 172.71.178.113",
-            "x-forwarded-host": "your-n8n-instance.app.n8n.cloud",
-            "x-forwarded-port": "443",
-            "x-forwarded-proto": "https",
-            "x-forwarded-server": "traefik-prod-users-gwc-40-669b86c79-64tnz",
-            "x-is-trusted": "yes",
-            "x-real-ip": "34.96.62.130"
-          },
-          "params": {},
-          "query": {},
-          "body": {
-            "eventId": "48ced773-d73a-4f1f-81fe-249e67db20ef",
-            "eventType": "FORM_RESPONSE",
-            "createdAt": "2026-01-29T11:53:04.488Z",
-            "data": {
-              "responseId": "44MJJgY",
-              "submissionId": "44MJJgY",
-              "respondentId": "5Bj1doE",
-              "formId": "vGPQy8",
-              "formName": "Contact Us - MGA Tech Consulting",
-              "createdAt": "2026-01-29T11:53:04.000Z",
-              "fields": [
-                {
-                  "key": "question_DNGXqZ",
-                  "label": "First name",
-                  "type": "INPUT_TEXT",
-                  "value": "John"
-                },
-                {
-                  "key": "question_lyE0av",
-                  "label": "Last name",
-                  "type": "INPUT_TEXT",
-                  "value": "Doe"
-                },
-                {
-                  "key": "question_R09ZWj",
-                  "label": "Email",
-                  "type": "INPUT_EMAIL",
-                  "value": "example@example.com"
-                },
-                {
-                  "key": "question_V069py",
-                  "label": "Job title",
-                  "type": "INPUT_TEXT",
-                  "value": "Data & Analytics Tech Lead"
-                },
-                {
-                  "key": "question_oyj09x",
-                  "label": "Company name",
-                  "type": "INPUT_TEXT",
-                  "value": "MGA Tech Consulting"
-                },
-                {
-                  "key": "question_GzPoek",
-                  "label": "Company size",
-                  "type": "DROPDOWN",
-                  "value": [
-                    "01b1ee31-f2b3-4caf-ba0f-44750f7dcce4"
-                  ],
-                  "options": [
-                    {
-                      "id": "01b1ee31-f2b3-4caf-ba0f-44750f7dcce4",
-                      "text": "1-10"
-                    },
-                    {
-                      "id": "a1e9b02d-80d1-4291-a21a-76938f311c53",
-                      "text": "10-100"
-                    },
-                    {
-                      "id": "7737b4a4-f430-40b3-be9f-578935f7e2e7",
-                      "text": "100-1000"
-                    },
-                    {
-                      "id": "a1cf09b4-a3b5-4b21-a53e-34148726778d",
-                      "text": "1000 +"
-                    }
-                  ]
-                },
-                {
-                  "key": "question_zq60Lk",
-                  "label": "Company webpage",
-                  "type": "INPUT_LINK",
-                  "value": "https://example.com/company-website"
-                },
-                {
-                  "key": "question_OzNjQg",
-                  "label": null,
-                  "type": "CHECKBOXES",
-                  "value": null,
-                  "options": [
-                    {
-                      "id": "d5ac5fee-85e0-4c75-b884-eac154ad3251",
-                      "text": "The latest news about our company in your inbox? Sign me up!"
-                    }
-                  ]
-                },
-                {
-                  "key": "question_OzNjQg_d5ac5fee-85e0-4c75-b884-eac154ad3251",
-                  "label": "Checkbox (The latest news about our company in your inbox? Sign me up!)",
-                  "type": "CHECKBOXES",
-                  "value": null
-                }
-              ]
-            }
-          },
-          "webhookUrl": "https://your-n8n-instance.app.n8n.cloud/webhook-test/tally-form-submission",
-          "executionMode": "test",
-          "serperApiKey": "YOUR_SERPER_API_KEY_HERE",
-          "companyDomain": "gmail.com",
-          "companyName": "Gmail"
-        },
-        "pairedItem": {
-          "item": 0
-        }
-      }
-    ],
-    "Search Company News (Serper)": [
-      {
-        "json": {
-          "searchParameters": {
-            "q": "MGA Tech Consulting",
-            "type": "search",
-            "engine": "google"
-          },
-          "organic": [
-            {
-              "title": "MGA Technologies: Custom-Made Machines for Industry 4.0",
-              "link": "https://www.mga-tech.com/",
-              "snippet": "MGA Technologies designs and produces custom-made machine tools, ready-to-use equipment for factories, and assists its clients at any stage of the rollout ...",
-              "attributes": {
-                "Missing": "Consulting | Show results with:Consulting"
-              },
-              "position": 1
-            },
-            {
-              "title": "MGA Consulting Services - LinkedIn",
-              "link": "https://www.linkedin.com/company/mga-consulting-services",
-              "snippet": "MGA Consulting is a full-service IT Solutions provider based in the Chicago area. Our goal is to provide technology solutions when and where they are needed.",
-              "position": 2
-            },
-            {
-              "title": "Technology Consulting - Miller Grossbard Advisors, LLP",
-              "link": "https://mgallp.com/technology-consulting/",
-              "snippet": "At MGA, we believe in always staying ahead of the curve. Our Finance, Accounting, Strategy, and Technology (F.A.S.T.) team embodies this belief by offering ...",
-              "position": 3
-            },
-            {
-              "title": "MGA SOFTECH",
-              "link": "https://www.mgasoftechllc.com/",
-              "snippet": "MGA SOFTECH is exclusively into Consulting and Staffing Solution which search talented employees and fulfils hiring requirements of the companies.",
-              "position": 4
-            },
-            {
-              "title": "Custom Machine Tool Design and Consulting - MGA Technologies",
-              "link": "https://www.mga-tech.com/custom-machine-tool-design-consulting/",
-              "snippet": "By specializing in assembly and control in clean environments, MGA Technologies practices cGMP (current Good Manufacturing Practices), the constraints of the ...",
-              "position": 5
-            },
-            {
-              "title": "MGA Consulting - Overview, News & Similar companies - ZoomInfo",
-              "link": "https://www.zoominfo.com/c/mga-consulting-ltd/157860385",
-              "snippet": "Established in 1994 originally as a SAP consulting and an IT Staffing firm, MGA Consulting has evolved over the years to becoming a multidisciplinary ...",
-              "position": 6
-            },
-            {
-              "title": "Building a successful technology enabled MGA - YouTube",
-              "link": "https://www.youtube.com/watch?v=SxIeP9VKF1g",
-              "snippet": "Building a successful technology enabled MGA. 543 views · 4 years ago. InsTech Podcast - insurance & innovation with Matthew Grant ...more ...",
-              "date": "Jul 8, 2021",
-              "attributes": {
-                "Missing": "Consulting | Show results with:Consulting"
-              },
-              "position": 7
-            },
-            {
-              "title": "A Buyer's Guide to the Best MGA Software - Genasys Technologies",
-              "link": "https://www.genasystech.com/best-mga-software-for-insurance/",
-              "snippet": "Discover the best MGA software providers, how to choose between them, the core features you need and the things you've not yet considered.",
-              "date": "Sep 25, 2025",
-              "position": 8
-            },
-            {
-              "title": "3 Main Technology Solutions for MGA - Decerto",
-              "link": "https://www.decerto.com/post/3-main-technology-solutions-for-mga",
-              "snippet": "This article explores three key technologies - Artificial Intelligence (AI), Data Analytics, and Holistic Insurance Software Solutions",
-              "date": "May 21, 2024",
-              "position": 9
-            },
-            {
-              "title": "Starting an MGA: The Critical Building Blocks of a Highly Effective ...",
-              "link": "https://www.functionalfi.com/resource-post/starting-an-mga-the-critical-building-blocks-of-a-highly-effective-tech-stack",
-              "snippet": "this guide breaks down the core components of a highly effective MGA tech stack—Policy Administration Systems (PAS), Claims Management Systems, ...",
-              "date": "Aug 8, 2024",
-              "attributes": {
-                "Missing": "Consulting | Show results with:Consulting"
-              },
-              "position": 10
-            }
-          ],
-          "credits": 1
-        },
-        "pairedItem": {
-          "item": 0
-        }
-      }
-    ],
-    "Generate Personalized Email": [
-      {
-        "json": {
-          "output": {
-            "subject": "MGA Software Solutions?",
-            "emailBody": "Hi Mariano,\n\nI came across Genasys Technologies' recent buyer's guide on MGA software solutions and thought it might be relevant given your work in the MGA space. The guide covers key considerations for selecting the right technology stack for MGA operations, which seems crucial for staying competitive in today's market.\n\nAt [Your Company], we specialize in helping MGA firms optimize their technology infrastructure and improve operational efficiency. I'd be happy to share some insights or arrange a brief call to discuss how we might support your specific needs.\n\nWould you be open to a 15-minute chat next week?\n\nBest regards,\n[Your Name]",
-            "newsReference": "A Buyer's Guide to the Best MGA Software - Genasys Technologies (September 25, 2025)"
-          }
-        },
-        "pairedItem": {
-          "item": 0
-        }
-      }
-    ]
-  },
-  "versionId": "ee23a32c-4b7a-48c5-a7c0-3e6856cc3adb",
-  "versionCounter": 15,
-  "triggerCount": 0,
-  "shared": [
-    {
-      "updatedAt": "2026-01-29T11:43:27.137Z",
-      "createdAt": "2026-01-29T11:43:27.137Z",
-      "role": "workflow:owner",
-      "workflowId": "_fu3rrIxO_O60G9CvHDXN",
-      "projectId": "VwsneyzwRufZF4gJ",
-      "project": {
-        "updatedAt": "2026-01-29T11:41:39.000Z",
-        "createdAt": "2026-01-29T11:40:48.290Z",
-        "id": "PROJECT_ID_PLACEHOLDER",
-        "name": "MasterClass AI Automation",
-        "type": "team",
-        "icon": {
-          "type": "emoji",
-          "value": "🚀"
-        },
-        "description": "Automations for Masterclass Series in Henry",
-        "creatorId": "USER_ID_PLACEHOLDER",
-        "projectRelations": [
-          {
-            "updatedAt": "2026-01-29T11:40:48.292Z",
-            "createdAt": "2026-01-29T11:40:48.292Z",
-            "userId": "USER_ID_PLACEHOLDER",
-            "projectId": "PROJECT_ID_PLACEHOLDER",
-            "user": {
-              "updatedAt": "2026-01-30T14:33:49.000Z",
-              "createdAt": "2025-06-12T23:41:13.919Z",
-              "id": "USER_ID_PLACEHOLDER",
-              "email": "example@example.com",
-              "firstName": "John",
-              "lastName": "Doe",
-              "personalizationAnswers": null,
-              "settings": {
-                "userActivated": true,
-                "easyAIWorkflowOnboarded": true,
-                "firstSuccessfulWorkflowId": "QF2NcgBLDDiV9w9R",
-                "userActivatedAt": 1761609393508,
-                "npsSurvey": {
-                  "responded": true,
-                  "lastShownAt": 1762435530923
-                },
-                "userClaimedAiCredits": true,
-                "dismissedCallouts": {
-                  "aiAgentStarterCallout": true
-                }
-              },
-              "disabled": false,
-              "mfaEnabled": true,
-              "lastActiveAt": "2026-01-30",
-              "isPending": false
-            }
-          }
-        ]
-      }
-    }
-  ]
+    "templateCredsSetupCompleted": false,
+    "instanceId": "YOUR_INSTANCE_ID_HERE"
+  }
 }

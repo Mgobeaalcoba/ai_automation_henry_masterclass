@@ -1,44 +1,51 @@
 {
-  "name": "The Omni-Channel Content Factory",
   "nodes": [
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "marketing-magic",
+        "path": "35886bbd-5468-4c8e-af76-8095dca4a509",
         "options": {}
       },
-      "id": "webhook-node",
-      "name": "Content Webhook",
       "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2,
-      "position": [240, 300],
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        -16
+      ],
+      "id": "9a2a501b-7d0c-419b-a224-28eea03191ab",
+      "name": "Webhook",
       "webhookId": "YOUR_WEBHOOK_ID_HERE"
     },
     {
       "parameters": {
-        "jsCode": "const rawData = $json.body;\nconst parsedData = JSON.parse(rawData);\n\nreturn {\n  url: parsedData.url,\n  title: parsedData.title,\n  user: parsedData.user\n};"
+        "jsCode": "// Tomamos el body que viene como texto y lo convertimos en un objeto real\nconst rawData = $json.body;\nconst parsedData = JSON.parse(rawData);\n\nreturn {\n  url: parsedData.url,\n  title: parsedData.title,\n  user: parsedData.user\n};"
       },
-      "id": "code-parser",
-      "name": "Code in JavaScript",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [460, 300]
+      "position": [
+        224,
+        -16
+      ],
+      "id": "52eeb48b-8f7f-44a1-87c7-f6eb59ed1ac4",
+      "name": "Code in JavaScript"
     },
     {
       "parameters": {
-        "method": "GET",
         "url": "=https://r.jina.ai/{{ $json.url }}",
         "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
+        "genericAuthType": "httpBearerAuth",
         "options": {}
       },
-      "id": "jina-reader",
-      "name": "Jina AI Reader",
       "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [680, 300],
+      "typeVersion": 4.3,
+      "position": [
+        448,
+        -16
+      ],
+      "id": "43abdc9d-f9ab-4da5-8ed5-2f1a886d78a9",
+      "name": "HTTP Request",
       "credentials": {
-        "httpHeaderAuth": {
+        "httpBearerAuth": {
           "id": "YOUR_JINA_CREDENTIAL_ID",
           "name": "Jina AI Bearer Auth"
         }
@@ -46,27 +53,35 @@
     },
     {
       "parameters": {
-        "options": {}
+        "promptType": "define",
+        "text": "=Contenido para procesar:\n{{ $json.data }}\n\nTítulo del artículo:\n{{ $('Code in JavaScript').item.json.title }}\n\nTarea: Genera el contenido para LinkedIn, X y la Newsletter basándote en este texto.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Eres un Content Architect Senior. Tu tarea es recibir el contenido de un artículo y transformarlo en tres piezas de marketing de alto impacto.\n\nDebes completar EXACTAMENTE estas tres propiedades: 1. linkedin: Un post con gancho, 3 bullets y pregunta final. 2. twitter: Un hilo de 5 posteos de X que resuma la esencia. 3. newsletter: Un resumen ejecutivo técnico de 150 palabras.\n\nIMPORTANTE: No describas el formato. Escribe el contenido real de los posts dentro de cada campo. No inventes campos nuevos."
+        }
       },
-      "id": "ai-agent",
-      "name": "AI Agent",
       "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 1.7,
-      "position": [900, 300]
+      "typeVersion": 3.1,
+      "position": [
+        704,
+        -16
+      ],
+      "id": "c47b1013-caf4-42b5-a11f-a4334053de24",
+      "name": "AI Agent"
     },
     {
       "parameters": {
-        "model": "z-ai/glm-4.5",
-        "options": {
-          "temperature": 0.7,
-          "maxTokens": 1500
-        }
+        "model": "z-ai/glm-4.5-air:free",
+        "options": {}
       },
-      "id": "openrouter-model",
-      "name": "OpenRouter Chat Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
       "typeVersion": 1,
-      "position": [900, 480],
+      "position": [
+        672,
+        208
+      ],
+      "id": "c9c939b2-bf69-4574-bc16-217a1649036f",
+      "name": "OpenRouter Chat Model",
       "credentials": {
         "openRouterApi": {
           "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
@@ -76,46 +91,85 @@
     },
     {
       "parameters": {
-        "schemaType": "fromJson",
-        "jsonSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"linkedin\": {\n      \"type\": \"string\",\n      \"description\": \"Post para LinkedIn con estructura AIDA\"\n    },\n    \"x\": {\n      \"type\": \"string\",\n      \"description\": \"Hilo de 5 tweets para X/Twitter\"\n    },\n    \"newsletter\": {\n      \"type\": \"string\",\n      \"description\": \"Resumen ejecutivo técnico de 150 palabras\"\n    }\n  },\n  \"required\": [\"linkedin\", \"x\", \"newsletter\"]\n}"
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"linkedin\": {\n      \"type\": \"string\",\n      \"description\": \"Post de LinkedIn con ganchos, bullets de valor y llamada a la acción.\"\n    },\n    \"x\": {\n      \"type\": \"string\",\n      \"description\": \"Hilo de exactamente 5 posteos de X resumiendo los puntos clave del artículo.\"\n    },\n    \"newsletter\": {\n      \"type\": \"string\",\n      \"description\": \"Resumen ejecutivo de 150 palabras con un tono técnico y profesional.\"\n    }\n  },\n  \"required\": [\"linkedin\", \"x\", \"newsletter\"]\n}",
+        "autoFix": true
       },
-      "id": "output-parser",
-      "name": "Structured Output Parser",
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
-      "typeVersion": 1.2,
-      "position": [900, 660]
+      "typeVersion": 1.3,
+      "position": [
+        800,
+        208
+      ],
+      "id": "01390bbe-fad3-4688-b2a9-45a18cc928b5",
+      "name": "Structured Output Parser"
     },
     {
       "parameters": {
-        "resource": "page",
-        "databaseId": "YOUR_NOTION_DATABASE_ID",
+        "model": "z-ai/glm-4.5-air:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        880,
+        416
+      ],
+      "id": "28fbeff6-5274-4cca-be49-67bd62084732",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
+          "name": "OpenRouter API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "2f7e9827-ed11-80dc-96e0-cd395f40f38a",
+          "mode": "list",
+          "cachedResultName": "Marketing Database",
+          "cachedResultUrl": "https://www.notion.so/2f7e9827ed1180dc96e0cd395f40f38a"
+        },
         "title": "={{ $('Code in JavaScript').item.json.title }}",
         "propertiesUi": {
           "propertyValues": [
             {
-              "key": "URL",
-              "textContent": "={{ $('Code in JavaScript').item.json.url }}"
+              "key": "name|title",
+              "title": "={{ $('Code in JavaScript').item.json.title }}"
             },
             {
-              "key": "LinkedIn Post",
-              "textContent": "={{ $json.linkedin }}"
+              "key": "url|url",
+              "ignoreIfEmpty": true,
+              "urlValue": "={{ $('Code in JavaScript').item.json.url }}"
             },
             {
-              "key": "X Thread",
-              "textContent": "={{ $json.x }}"
+              "key": "newsletter|rich_text",
+              "textContent": "={{ $json.output.newsletter }}"
             },
             {
-              "key": "Newsletter",
-              "textContent": "={{ $json.newsletter }}"
+              "key": "linkedin|rich_text",
+              "textContent": "={{ $json.output.linkedin }}"
+            },
+            {
+              "key": "x|rich_text",
+              "textContent": "={{ $json.output.x }}"
             }
           ]
-        }
+        },
+        "options": {}
       },
-      "id": "notion-create",
-      "name": "Create Notion Page",
       "type": "n8n-nodes-base.notion",
       "typeVersion": 2.2,
-      "position": [1120, 300],
+      "position": [
+        1168,
+        -16
+      ],
+      "id": "dfaf50f0-f865-4e7f-bae7-4ad54bee1ed7",
+      "name": "Create a database page",
       "credentials": {
         "notionApi": {
           "id": "YOUR_NOTION_CREDENTIAL_ID",
@@ -125,7 +179,7 @@
     }
   ],
   "connections": {
-    "Content Webhook": {
+    "Webhook": {
       "main": [
         [
           {
@@ -140,14 +194,14 @@
       "main": [
         [
           {
-            "node": "Jina AI Reader",
+            "node": "HTTP Request",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Jina AI Reader": {
+    "HTTP Request": {
       "main": [
         [
           {
@@ -162,7 +216,7 @@
       "main": [
         [
           {
-            "node": "Create Notion Page",
+            "node": "Create a database page",
             "type": "main",
             "index": 0
           }
@@ -190,17 +244,20 @@
           }
         ]
       ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "pinData": {},
-  "settings": {
-    "executionOrder": "v1"
-  },
-  "staticData": null,
-  "tags": [],
-  "triggerCount": 0,
-  "updatedAt": "2026-02-03T00:00:00.000Z",
-  "versionId": "1",
   "meta": {
     "templateCredsSetupCompleted": false,
     "instanceId": "YOUR_INSTANCE_ID_HERE"

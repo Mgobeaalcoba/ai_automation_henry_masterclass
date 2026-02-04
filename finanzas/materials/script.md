@@ -95,7 +95,7 @@ JSON Schema:
 
 ### **Nodo 6: Gmail Sent a Email**
 
-* **To: [gobeamariano@gmail.com](mailto:gobeamariano@gmail.com)**  
+* **To: YOUR_EMAIL@gmail.com**  
 * **Subject: \<ALERTA\_\[PRODUCTO\]\>**
 
 Text:
@@ -227,8 +227,8 @@ Text:
       ],
       "credentials": {
         "httpBearerAuth": {
-          "id": "UvOWlSbwdldEzmAC",
-          "name": "Bearer Auth Jian AI"
+          "id": "YOUR_JINA_CREDENTIAL_ID",
+          "name": "Jina AI Bearer Auth"
         }
       }
     },
@@ -265,8 +265,8 @@ Text:
       ],
       "credentials": {
         "openRouterApi": {
-          "id": "xZpAyjDIWgQms8rD",
-          "name": "OpenRouter account"
+          "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
+          "name": "OpenRouter API"
         }
       }
     },
@@ -287,7 +287,7 @@ Text:
     },
     {
       "parameters": {
-        "sendTo": "gobeamariano@gmail.com",
+        "sendTo": "YOUR_EMAIL@gmail.com",
         "subject": "=🚨 Alerta de Mercado: {{ $('Ticker Filter').item.json.ticker }} - {{ $json.output.recommendation }}",
         "message": "=<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }\n    .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }\n    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }\n    .header h1 { margin: 0; font-size: 24px; }\n    .alert-icon { font-size: 48px; margin-bottom: 10px; }\n    .content { padding: 30px; }\n    .ticker-badge { display: inline-block; background-color: #667eea; color: white; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 18px; margin-bottom: 20px; }\n    .recommendation-box { background-color: {{ $json.output.recommendation === 'BUY' ? '#4caf50' : ($json.output.recommendation === 'SELL' ? '#f44336' : '#ff9800') }}; color: white; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0; }\n    .recommendation-box h2 { margin: 0 0 10px 0; font-size: 28px; }\n    .score-badge { background-color: rgba(255,255,255,0.2); display: inline-block; padding: 10px 20px; border-radius: 20px; font-size: 20px; font-weight: bold; }\n    .reasoning-section { background-color: #f8f9fa; padding: 20px; border-left: 4px solid #667eea; margin: 20px 0; border-radius: 4px; }\n    .reasoning-section h3 { margin-top: 0; color: #333; }\n    .reasoning-section p { color: #555; line-height: 1.6; margin: 0; }\n    .source-section { margin-top: 30px; padding-top: 20px; border-top: 2px solid #e0e0e0; }\n    .source-link { display: inline-block; background-color: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin-top: 10px; }\n    .source-link:hover { background-color: #5568d3; }\n    .footer { background-color: #f8f9fa; padding: 20px; text-align: center; color: #777; font-size: 12px; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <div class=\"alert-icon\">🚨</div>\n      <h1>Alerta de Mercado Financiero</h1>\n    </div>\n    <div class=\"content\">\n      <div style=\"text-align: center;\">\n        <span class=\"ticker-badge\">{{ $('Ticker Filter').item.json.ticker }}</span>\n      </div>\n      \n      <div class=\"recommendation-box\">\n        <h2>{{ $json.output.recommendation }}</h2>\n        <div class=\"score-badge\">Score: {{ $json.output.score }}/10</div>\n      </div>\n      \n      <div class=\"reasoning-section\">\n        <h3>📊 Análisis del Analista</h3>\n        <p>{{ $json.output.reasoning }}</p>\n      </div>\n      \n      <div class=\"source-section\">\n        <h3 style=\"color: #333; margin-top: 0;\">📰 Fuente de la Noticia</h3>\n        <p style=\"color: #555;\">{{ $('Ticker Filter').item.json.title }}</p>\n        <a href=\"{{ $('Ticker Filter').item.json.link }}\" class=\"source-link\" target=\"_blank\">Leer Artículo Completo</a>\n      </div>\n    </div>\n    <div class=\"footer\">\n      <p>Este es un mensaje automático generado por tu sistema de monitoreo financiero con IA.</p>\n      <p>Powered by n8n AI Financial Monitor</p>\n    </div>\n  </div>\n</body>\n</html>",
         "options": {}
@@ -300,11 +300,11 @@ Text:
         2256,
         48
       ],
-      "webhookId": "1dba2c63-00c9-4184-a2d8-533a04d84b86",
+      "webhookId": "YOUR_WEBHOOK_ID_HERE",
       "credentials": {
         "gmailOAuth2": {
-          "id": "qBqHR4Ctwvw5icyM",
-          "name": "gobeamariano@gmail.com Gmail"
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail OAuth2"
         }
       }
     },
@@ -323,8 +323,8 @@ Text:
       "name": "OpenRouter Chat Model",
       "credentials": {
         "openRouterApi": {
-          "id": "xZpAyjDIWgQms8rD",
-          "name": "OpenRouter account"
+          "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
+          "name": "OpenRouter API"
         }
       }
     }
@@ -410,8 +410,8 @@ Text:
   },
   "pinData": {},
   "meta": {
-    "templateCredsSetupCompleted": true,
-    "instanceId": "db8d09bbe9f4d9927fc4c8a17afea05396ceeae3fa505bb8a1751699adf525b5"
+    "templateCredsSetupCompleted": false,
+    "instanceId": "YOUR_INSTANCE_ID_HERE"
   }
 }
 
