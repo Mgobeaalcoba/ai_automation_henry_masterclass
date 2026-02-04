@@ -36,7 +36,7 @@ Convertir cualquier artículo web en contenido multi-canal (LinkedIn, X, Newslet
 
 ### 2. Ventas: AI-Powered Lead Personalization
 
-**Fecha:** Miércoles 4 de febrero, 2026  
+**Fecha:** Miércoles 4 de febrero, 2026 - 19:00 hs (Argentina) 
 **Duración:** 40 minutos  
 **Instructor:** Mariano Gobea Alcoba
 
