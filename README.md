@@ -63,7 +63,7 @@ Automatizar el proceso completo de captación de leads: desde el formulario hast
 
 ### 3. Finanzas: IA vs. Wall Street - Monitor de Tendencias
 
-**Fecha:** Jueves 12 de febrero, 2026 - 19:00 hs (Argentina)  
+**Fecha:** Jueves 5 de febrero, 2026 - 19:00 hs (Argentina)  
 **Duración:** 40 minutos  
 **Instructor:** Mariano Gobea Alcoba
 
