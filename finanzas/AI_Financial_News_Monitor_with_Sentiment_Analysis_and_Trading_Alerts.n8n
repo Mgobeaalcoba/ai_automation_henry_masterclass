@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-03T20:59:13.267Z",
+  "updatedAt": "2026-02-04T16:58:48.117Z",
   "createdAt": "2026-02-03T20:39:16.407Z",
   "id": "GOBWQwHpCECxsYt-8T-Bx",
   "name": "AI Financial News Monitor with Sentiment Analysis and Trading Alerts",
@@ -124,7 +124,7 @@
     },
     {
       "parameters": {
-        "sendTo": "gobeamariano@gmail.com",
+        "sendTo": "YOUR_EMAIL@gmail.com",
         "subject": "=🚨 Alerta de Mercado: {{ $('Ticker Filter').item.json.ticker }} - {{ $json.output.recommendation }}",
         "message": "=<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }\n    .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }\n    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }\n    .header h1 { margin: 0; font-size: 24px; }\n    .alert-icon { font-size: 48px; margin-bottom: 10px; }\n    .content { padding: 30px; }\n    .ticker-badge { display: inline-block; background-color: #667eea; color: white; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 18px; margin-bottom: 20px; }\n    .recommendation-box { background-color: {{ $json.output.recommendation === 'BUY' ? '#4caf50' : ($json.output.recommendation === 'SELL' ? '#f44336' : '#ff9800') }}; color: white; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0; }\n    .recommendation-box h2 { margin: 0 0 10px 0; font-size: 28px; }\n    .score-badge { background-color: rgba(255,255,255,0.2); display: inline-block; padding: 10px 20px; border-radius: 20px; font-size: 20px; font-weight: bold; }\n    .reasoning-section { background-color: #f8f9fa; padding: 20px; border-left: 4px solid #667eea; margin: 20px 0; border-radius: 4px; }\n    .reasoning-section h3 { margin-top: 0; color: #333; }\n    .reasoning-section p { color: #555; line-height: 1.6; margin: 0; }\n    .source-section { margin-top: 30px; padding-top: 20px; border-top: 2px solid #e0e0e0; }\n    .source-link { display: inline-block; background-color: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin-top: 10px; }\n    .source-link:hover { background-color: #5568d3; }\n    .footer { background-color: #f8f9fa; padding: 20px; text-align: center; color: #777; font-size: 12px; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <div class=\"alert-icon\">🚨</div>\n      <h1>Alerta de Mercado Financiero</h1>\n    </div>\n    <div class=\"content\">\n      <div style=\"text-align: center;\">\n        <span class=\"ticker-badge\">{{ $('Ticker Filter').item.json.ticker }}</span>\n      </div>\n      \n      <div class=\"recommendation-box\">\n        <h2>{{ $json.output.recommendation }}</h2>\n        <div class=\"score-badge\">Score: {{ $json.output.score }}/10</div>\n      </div>\n      \n      <div class=\"reasoning-section\">\n        <h3>📊 Análisis del Analista</h3>\n        <p>{{ $json.output.reasoning }}</p>\n      </div>\n      \n      <div class=\"source-section\">\n        <h3 style=\"color: #333; margin-top: 0;\">📰 Fuente de la Noticia</h3>\n        <p style=\"color: #555;\">{{ $('Ticker Filter').item.json.title }}</p>\n        <a href=\"{{ $('Ticker Filter').item.json.link }}\" class=\"source-link\" target=\"_blank\">Leer Artículo Completo</a>\n      </div>\n    </div>\n    <div class=\"footer\">\n      <p>Este es un mensaje automático generado por tu sistema de monitoreo financiero con IA.</p>\n      <p>Powered by n8n AI Financial Monitor</p>\n    </div>\n  </div>\n</body>\n</html>",
         "options": {}
@@ -140,8 +140,8 @@
       "webhookId": "1dba2c63-00c9-4184-a2d8-533a04d84b86",
       "credentials": {
         "gmailOAuth2": {
-          "id": "qBqHR4Ctwvw5icyM",
-          "name": "gobeamariano@gmail.com Gmail"
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "YOUR_EMAIL@gmail.com Gmail"
         }
       }
     },
@@ -247,16 +247,17 @@
   },
   "settings": {
     "executionOrder": "v1",
-    "availableInMCP": false
+    "availableInMCP": false,
+    "callerPolicy": "workflowsFromSameOwner"
   },
   "staticData": null,
   "meta": {
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "4c767fc4-6118-4eeb-8b60-a80e3058a8f4",
+  "versionId": "6e90ff20-2eae-4e3d-bc35-9603586044b8",
   "activeVersionId": null,
-  "versionCounter": 31,
+  "versionCounter": 32,
   "triggerCount": 0,
   "shared": [
     {

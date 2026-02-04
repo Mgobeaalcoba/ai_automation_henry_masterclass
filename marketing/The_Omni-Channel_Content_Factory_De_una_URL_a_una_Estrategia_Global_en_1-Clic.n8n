@@ -53,7 +53,7 @@
       "name": "HTTP Request",
       "credentials": {
         "httpBearerAuth": {
-          "id": "UvOWlSbwdldEzmAC",
+          "id": "YOUR_JINA_CREDENTIAL_ID",
           "name": "Bearer Auth Jian AI"
         }
       }
@@ -91,7 +91,7 @@
       "name": "OpenRouter Chat Model",
       "credentials": {
         "openRouterApi": {
-          "id": "xZpAyjDIWgQms8rD",
+          "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
           "name": "OpenRouter account"
         }
       }
@@ -126,7 +126,7 @@
       "name": "OpenRouter Chat Model1",
       "credentials": {
         "openRouterApi": {
-          "id": "xZpAyjDIWgQms8rD",
+          "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
           "name": "OpenRouter account"
         }
       }
@@ -179,7 +179,7 @@
       "name": "Create a database page",
       "credentials": {
         "notionApi": {
-          "id": "h3Ian1B5ae0pNQSt",
+          "id": "YOUR_NOTION_CREDENTIAL_ID",
           "name": "Notion account"
         }
       }
@@ -306,7 +306,7 @@
               "updatedAt": "2026-02-04T01:04:44.000Z",
               "createdAt": "2025-06-12T23:41:13.919Z",
               "id": "7e93e9fa-ed56-44be-9665-0a8ad9e738d2",
-              "email": "gobeamariano@gmail.com",
+              "email": "YOUR_EMAIL@gmail.com",
               "firstName": "Mariano",
               "lastName": "Daniel Gobea Alcoba",
               "personalizationAnswers": null,
@@ -387,7 +387,7 @@
         "name": "HTTP Request",
         "credentials": {
           "httpBearerAuth": {
-            "id": "UvOWlSbwdldEzmAC",
+            "id": "YOUR_JINA_CREDENTIAL_ID",
             "name": "Bearer Auth Jian AI"
           }
         }
@@ -425,7 +425,7 @@
         "name": "OpenRouter Chat Model",
         "credentials": {
           "openRouterApi": {
-            "id": "xZpAyjDIWgQms8rD",
+            "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
             "name": "OpenRouter account"
           }
         }
@@ -460,7 +460,7 @@
         "name": "OpenRouter Chat Model1",
         "credentials": {
           "openRouterApi": {
-            "id": "xZpAyjDIWgQms8rD",
+            "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
             "name": "OpenRouter account"
           }
         }
@@ -513,7 +513,7 @@
         "name": "Create a database page",
         "credentials": {
           "notionApi": {
-            "id": "h3Ian1B5ae0pNQSt",
+            "id": "YOUR_NOTION_CREDENTIAL_ID",
             "name": "Notion account"
           }
         }

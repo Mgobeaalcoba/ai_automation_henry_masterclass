@@ -1,64 +1,29 @@
 {
-  "metadata": {
-    "workflow": "sales-automation-workflow",
-    "execution_date": "2025-01-30T14:30:15.000Z",
-    "lead_info": {
-      "name": "María González",
-      "email": "maria.gonzalez@techcorp.com",
-      "company": "TechCorp Solutions",
-      "position": "Head of Marketing",
-      "website": "https://www.techcorp-solutions.com"
-    },
-    "research_summary": {
-      "company_domain": "techcorp-solutions.com",
-      "news_found": 3,
-      "ai_model_used": "nousresearch/hermes-3-llama-3.1-405b:free",
-      "personalization_level": "high"
+  "output": {
+    "subject": "Your Series A and scaling automation at Techstartup",
+    "emailBody": "Hi Juan,\n\nI noticed Techstartup just raised $5M in Series A - congratulations on the milestone. Scaling from seed to Series A often means your sales processes need to evolve faster than your team can grow.\n\nWe help B2B companies automate their lead qualification and outreach without sacrificing personalization. Companies similar to yours typically see 3x pipeline growth within 60 days.\n\nWould a 15-minute call make sense to explore if this approach fits your current priorities?",
+    "newsReference": "TechStartup Raises $5M Series A to Scale AI Platform (February 2026)"
+  },
+  "lead": {
+    "firstName": "Juan",
+    "lastName": "Pérez",
+    "email": "juan@techstartup.com",
+    "companyName": "Techstartup",
+    "companyDomain": "techstartup.com"
+  },
+  "research": {
+    "query": "TechStartup funding news",
+    "resultsFound": 3,
+    "topResult": {
+      "title": "TechStartup Raises $5M Series A to Scale AI Platform",
+      "snippet": "TechStartup announced today it has closed a $5M Series A round led by Venture Capital Partners...",
+      "link": "https://techcrunch.com/2026/02/techstartup-series-a"
     }
   },
-  "email_output": {
-    "subject": "Soluciones de IA para TechCorp Solutions - Transformando su Prospección",
-    "greeting": "Hola María,",
-    "body": "Gracias por tu interés en soluciones de automatización con IA para mejorar tu proceso de prospección y ventas.\n\nHe estado investigando sobre TechCorp Solutions y veo que su enfoque en tecnología de vanguardia los posiciona perfectamente para aprovechar la automatización inteligente. Como Head of Marketing, seguramente buscas formas de escalar tu alcance sin sacrificar la personalización que distingue a las comunicaciones efectivas.\n\nBasándome en las últimas novedades de TechCorp Solutions, incluyendo su reciente expansión en el mercado latinoamericano y el lanzamiento de su nueva línea de productos SaaS, puedo ver cómo una solución de automatización con IA podría:\n\n• Reducir en un 70% el tiempo dedicado a la investigación manual de leads\n• Generar mensajes personalizados basados en el contexto actual de cada prospecto\n• Integrar automáticamente con tu CRM existente para un seguimiento sin fricciones\n• Escalar tu equipo de ventas sin incrementar linealmente los costos\n\nLo interesante de las herramientas actuales de IA es que pueden analizar automáticamente las noticias, actualizaciones y contexto de cada empresa prospecto, algo que mencionaste te interesa especialmente.\n\n¿Te gustaría que programemos una llamada breve de 15 minutos esta semana para mostrarte cómo funciona en práctica? Puedo preparar un demo específico usando ejemplos de tu industria.",
-    "closing": "Quedo atento a tu respuesta.",
-    "signature": "Saludos cordiales,\n[Tu Nombre]\n[Tu Cargo]\n[Tu Empresa]"
-  },
-  "research_context": {
-    "news_items": [
-      {
-        "title": "TechCorp Solutions anuncia expansión en América Latina",
-        "snippet": "La compañía de tecnología planea abrir oficinas en 5 países latinoamericanos durante 2025...",
-        "date": "2025-01-15",
-        "source": "Tech News Daily"
-      },
-      {
-        "title": "Nueva línea de productos SaaS de TechCorp",
-        "snippet": "TechCorp Solutions lanza su suite de herramientas cloud-based para empresas medianas...",
-        "date": "2025-01-10",
-        "source": "SaaS Weekly"
-      },
-      {
-        "title": "TechCorp aumenta equipo de marketing en 40%",
-        "snippet": "La empresa confirma la contratación de 20 nuevos profesionales de marketing...",
-        "date": "2025-01-05",
-        "source": "Marketing Insider"
-      }
-    ],
-    "personalization_elements": [
-      "Cargo específico mencionado (Head of Marketing)",
-      "Expansión reciente de la empresa utilizada como contexto",
-      "Lanzamiento de productos SaaS conectado con necesidades de automatización",
-      "Mensaje del lead incorporado naturalmente en el email",
-      "Métrica concreta (70% reducción de tiempo) para generar interés"
-    ]
-  },
-  "hubspot_notes": "Email personalizado generado automáticamente por AI Automation Workflow.\n\nContexto de investigación:\n- Empresa: TechCorp Solutions\n- Industria: Tecnología / SaaS\n- Noticias recientes analizadas: 3\n- Elementos de personalización aplicados: 5\n\nLead expresó interés en: automatización con IA, personalización de comunicación, mejora de prospección.\n\nNext steps sugeridos:\n1. Seguimiento en 48 horas si no hay respuesta\n2. Preparar demo personalizado de la industria tech\n3. Compartir caso de estudio de empresa similar",
-  "quality_score": {
-    "personalization": 9,
-    "relevance": 9,
-    "clarity": 8,
-    "call_to_action": 8,
-    "overall": 8.5,
-    "notes": "Email altamente personalizado con contexto relevante de la empresa. Estructura clara con beneficios concretos. CTA específico y de bajo compromiso (15 minutos)."
+  "metadata": {
+    "generated_at": "2026-02-03T19:30:00.000Z",
+    "model_used": "z-ai/glm-4.5-air:free",
+    "workflow_execution_id": "12345",
+    "word_count": 68
   }
 }

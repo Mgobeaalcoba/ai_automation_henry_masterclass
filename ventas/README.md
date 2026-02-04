@@ -31,6 +31,8 @@ Un workflow automatizado que:
 
 **De 17 minutos a 30 segundos. Automatizado 100%.**
 
+**Diferenciador clave:** El sistema extrae el nombre de la empresa automáticamente del dominio del email, simplificando el formulario y mejorando la tasa de conversión.
+
 ---
 
 ## 🏗️ Arquitectura del Sistema
@@ -40,27 +42,33 @@ Formulario Tally
       ↓
   Webhook n8n
       ↓
-Workflow Configuration (Set API keys)
+Extract Company Domain (Code) → Extrae del EMAIL
       ↓
-Extract Company Domain (Code)
-      ↓
-Search Company News (Serper API)
+Search Company News (Serper API) → Google Search
       ↓
 AI Agent (OpenRouter + LangChain)
+      ↓
+Email Structure Parser (JSON)
       ↓
 Create/Update Contact (HubSpot CRM)
 ```
 
 ### Flujo de Datos
 
-1. **Captura:** Lead completa formulario Tally (nombre, email, empresa, cargo, mensaje)
+1. **Captura:** Lead completa formulario Tally (First name, Last name, Email)
 2. **Webhook:** Tally envía datos a n8n automáticamente
-3. **Extracción:** JavaScript extrae el dominio de la URL de la empresa
-4. **Investigación:** Serper busca las 3 noticias más recientes de la empresa
+3. **Extracción:** JavaScript extrae el dominio del EMAIL del lead
+   - Ejemplo: `juan@techstartup.com` → `companyDomain: techstartup.com`, `companyName: Techstartup`
+4. **Investigación:** Serper busca información de la empresa en Google (endpoint `/search`)
+   - Devuelve resultados orgánicos con snippets
 5. **Generación:** AI Agent crea email personalizado basado en:
-   - Datos del lead (cargo, empresa, mensaje)
-   - Noticias encontradas (contexto real)
-6. **CRM:** El contacto se crea/actualiza en HubSpot con el email generado
+   - Datos del lead (nombre, email, empresa)
+   - Resultados de búsqueda de Google (noticias recientes, contexto)
+6. **Parsing:** Output Parser estructura la respuesta en JSON con 3 campos:
+   - `subject` - Línea de asunto personalizada
+   - `emailBody` - Cuerpo del email (< 150 palabras)
+   - `newsReference` - Noticia específica referenciada
+7. **CRM:** El contacto se crea/actualiza en HubSpot con custom properties del email
 
 ---
 
@@ -77,9 +85,11 @@ Create/Update Contact (HubSpot CRM)
 ### Por Qué Este Stack
 
 - **Tally** es el formulario más simple con webhooks nativos (no code)
-- **Serper** accede a Google News API sin complejidad de OAuth
-- **OpenRouter** da acceso a modelos gratuitos (Hermes 405B, Gemini Flash)
-- **HubSpot** CRM gratuito sin restricciones absurdas (vs. Salesforce)
+- **Serper** accede a Google Search API (endpoint `/search`) sin complejidad de OAuth
+- **OpenRouter** da acceso a modelos gratuitos (GLM-4.5-air, GPT-OSS-120B)
+- **HubSpot** CRM gratuito con soporte para custom properties ilimitadas
+
+**Ventaja del endpoint `/search`:** Devuelve resultados orgánicos completos con snippets, no solo noticias. Esto permite a la IA tener más contexto para personalizar.
 
 ---
 
@@ -134,10 +144,10 @@ Create/Update Contact (HubSpot CRM)
 4. Algunos modelos son gratuitos, otros tienen costo mínimo
 ```
 
-**Modelos recomendados:**
-- `nousresearch/hermes-3-llama-3.1-405b:free` (gratis)
-- `google/gemini-2.0-flash-thinking-exp:free` (gratis)
-- `google/gemini-flash-1.5` (muy barato, excelente calidad)
+**Modelos recomendados (gratuitos):**
+- `z-ai/glm-4.5-air:free` (principal - rápido y eficiente para emails)
+- `openai/gpt-oss-120b:free` (fallback - excelente personalización)
+- `google/gemini-2.0-flash-exp:free` (alternativa si los otros fallan)
 
 #### 1.5 HubSpot
 
@@ -163,12 +173,12 @@ Create/Update Contact (HubSpot CRM)
 1. Descargar workflow.json de este directorio
 2. En n8n: Workflows → Import from File
 3. Seleccionar workflow.json
-4. El workflow se abrirá con 9 nodos
+4. El workflow se abrirá con 7 nodos (5 principales + 2 sub-nodos)
 ```
 
 #### 2.2 Configurar Nodos
 
-El workflow tiene **6 nodos principales** + **3 sub-nodos**:
+El workflow tiene **5 nodos principales** + **2 sub-nodos**:
 
 **Nodo 1: Tally Form Webhook**
 - Path: `tally-form-submission` (ya configurado)
@@ -176,77 +186,111 @@ El workflow tiene **6 nodos principales** + **3 sub-nodos**:
 - Copiar la URL de producción (no la de test)
 - Formato: `https://tu-instancia.app.n8n.cloud/webhook/tally-form-submission`
 
-**Nodo 2: Workflow Configuration (Set)**
-- Agregar variable: `serperApiKey`
-- Value: Tu API key de Serper (sin comillas)
-
-**Nodo 3: Extract Company Domain (Code)**
+**Nodo 2: Extract Company Domain (Code)**
 - Lenguaje: JavaScript
-- Código ya incluido en el workflow
-- Extrae dominio de URLs como: `https://www.example.com/about` → `example.com`
+- Mode: Run Once for Each Item
+- Código incluido en el workflow
+- **Función:** Extrae el dominio del EMAIL del lead (no del sitio web)
+- **Ejemplo:**
+  - Input: `juan@techstartup.com`
+  - Output: `companyDomain: "techstartup.com"`, `companyName: "Techstartup"`
 
-**Nodo 4: Search Company News (HTTP Request)**
-- URL: `https://google.serper.dev/news`
+```javascript
+// Código del nodo (ya incluido en workflow.json)
+const fields = $json.body.data.fields;
+const emailField = fields.find(field => field.label === 'Email' || field.type === 'INPUT_EMAIL');
+const email = emailField ? emailField.value : null;
+
+if (!email) {
+  return { ...$json, error: 'No email found in Tally fields' };
+}
+
+const domain = email.split('@')[1];
+const companyNameRaw = domain.split('.')[0];
+const companyName = companyNameRaw.charAt(0).toUpperCase() + companyNameRaw.slice(1);
+
+return {
+  ...$json,
+  companyDomain: domain,
+  companyName: companyName,
+  email: email
+};
+```
+
+**Nodo 3: Search Company News (Serper)**
+- URL: `https://google.serper.dev/search` (endpoint `/search`, no `/news`)
 - Method: POST
-- Headers:
-  - `X-API-KEY`: `{{ $node["Workflow Configuration"].json["serperApiKey"] }}`
-  - `Content-Type`: `application/json`
-- Body:
-  ```json
-  {
-    "q": "{{ $node['Extract Company Domain'].json['domain'] }}",
-    "num": 3
-  }
-  ```
+- Authentication: Generic Credential Type → Header Auth
+- Header Name: `X-API-KEY`
+- Header Value: Tu API key de Serper
+- Body Parameters:
+  - `q`: `{{ $json.body.data.fields[4].value }}` (campo de búsqueda del formulario)
 
-**Nodo 5: Generate Personalized Email (AI Agent)**
-- Requiere configurar sub-nodos:
-  - OpenRouter Chat Model (credenciales)
-  - Output Parser (schema JSON)
+**Importante:** Este nodo usa el campo index 4 del formulario Tally. Asegúrate de que ese campo exista.
+
+**Nodo 4: Generate Personalized Email (AI Agent)**
+- Prompt Type: Define Below
+- Text (User Prompt):
+  ```
+  Lead Information:
+  - Name: {{ First name }} {{ Last name }}
+  - Email: {{ Email }}
+  - Company: {{ companyName }}
+  - Company Domain: {{ companyDomain }}
+
+  All Research Results (Google Search):
+  {{ JSON.stringify($json.organic) }}
+  ```
+- System Message: Ver sección "Configuración de Prompts" abajo
+- Has Output Parser: Yes
+- Requiere configurar sub-nodos
 
 **Sub-nodo: OpenRouter Chat Model**
-- Credential Type: Generic Credential Type
-- Credential: Crear nueva credencial HTTP Request
-  - Name: `OpenRouter API`
-  - Method: POST
-  - URL: `https://openrouter.ai/api/v1/chat/completions`
-  - Authentication: Header Auth
-    - Header Name: `Authorization`
-    - Header Value: `Bearer tu_openrouter_api_key`
-- Model: `nousresearch/hermes-3-llama-3.1-405b:free`
-- Temperature: 0.7
-- Max Tokens: 1000
+- Model: `z-ai/glm-4.5-air:free` (modelo gratuito, muy eficiente)
+- Credential: OpenRouter API (OAuth o Header Auth)
+- Options: Defaults (Temperature automática)
 
-**Sub-nodo: Structured Output Parser**
-- Type: Structured Output Parser
-- Schema (JSON):
+**Sub-nodo: Email Structure Parser (Output Parser)**
+- Schema Type: Manual
+- Input Schema (JSON):
   ```json
   {
     "type": "object",
     "properties": {
-      "subject": { "type": "string", "description": "Email subject line" },
-      "greeting": { "type": "string", "description": "Email greeting" },
-      "body": { "type": "string", "description": "Email body content" },
-      "closing": { "type": "string", "description": "Email closing" },
-      "signature": { "type": "string", "description": "Email signature" }
-    },
-    "required": ["subject", "greeting", "body", "closing", "signature"]
+      "subject": {
+        "type": "string",
+        "description": "Email subject line"
+      },
+      "emailBody": {
+        "type": "string",
+        "description": "Personalized email body with news-based icebreaker"
+      },
+      "newsReference": {
+        "type": "string",
+        "description": "The specific news item referenced"
+      }
+    }
   }
   ```
+- Auto Fix: Enabled
 
-**Nodo 6: Create/Update HubSpot Contact**
+**Sub-nodo: OpenRouter Chat Model1 (Fallback)**
+- Model: `openai/gpt-oss-120b:free` (modelo alternativo gratuito)
+- Conectado al Output Parser como modelo secundario
+
+**Nodo 5: Create/Update HubSpot Contact**
 - Resource: Contact
 - Operation: Create or Update
-- Resolve Data: Using Fields Below
-- Email: `{{ $json.data.fields.find(f => f.label.toLowerCase().includes('email')).value }}`
+- Authentication: OAuth2
+- Email: `{{ $('Extract Company Domain').item.json.email }}`
 - Additional Fields:
-  - First Name: `{{ $json.data.fields.find(f => f.label.toLowerCase().includes('nombre')).value.split(' ')[0] }}`
-  - Last Name: `{{ $json.data.fields.find(f => f.label.toLowerCase().includes('nombre')).value.split(' ').slice(1).join(' ') }}`
-  - Company: `{{ $json.data.fields.find(f => f.label.toLowerCase().includes('empresa')).value }}`
-  - Job Title: `{{ $json.data.fields.find(f => f.label.toLowerCase().includes('cargo')).value }}`
-  - Website: `{{ $json.data.fields.find(f => f.label.toLowerCase().includes('web')).value }}`
+  - First Name: `{{ $('Extract Company Domain').item.json.body.data.fields[0].value }}`
+  - Last Name: `{{ $('Extract Company Domain').item.json.body.data.fields[1].value }}`
+  - Company Name: `{{ $('Extract Company Domain').item.json.body.data.fields[4].value }}`
 - Custom Properties:
-  - `hs_note_body`: `{{ $('Generate Personalized Email').item.json.output }}`
+  - `personalized_email_subject`: `{{ $json.output.subject }}`
+  - `personalized_email_body`: `{{ $json.output.emailBody }}`
+  - `news_reference`: `{{ $json.output.newsReference }}`
 
 ---
 
@@ -254,31 +298,32 @@ El workflow tiene **6 nodos principales** + **3 sub-nodos**:
 
 #### 3.1 Campos del Formulario
 
-Crea un formulario en Tally con estos campos (en este orden):
+Crea un formulario en Tally con estos campos **EN ESTE ORDEN EXACTO** (importante para los índices):
 
-1. **Nombre completo** (Text)
-   - Label: "¿Cuál es tu nombre completo?"
+1. **First name** (Text)
+   - Label: "First name"
    - Required: Yes
+   - Index: 0
 
-2. **Email** (Email)
-   - Label: "¿Cuál es tu email?"
+2. **Last name** (Text)
+   - Label: "Last name"
    - Required: Yes
+   - Index: 1
 
-3. **Empresa** (Text)
-   - Label: "¿En qué empresa trabajas?"
+3. **Email** (Email)
+   - Label: "Email"
    - Required: Yes
+   - Index: 2
+   - **Importante:** El dominio de este email se usa para extraer el nombre de la empresa
 
-4. **Sitio web de la empresa** (URL)
-   - Label: "¿Cuál es el sitio web de tu empresa?"
+4. **Campo adicional 3** (Hidden o cualquier tipo)
+   - Index: 3
+
+5. **Company/Search Query** (Text)
+   - Label: Lo que quieras (ej: "Company Name" o "What would you like to know?")
    - Required: Yes
-
-5. **Cargo** (Text)
-   - Label: "¿Cuál es tu cargo?"
-   - Required: Yes
-
-6. **Mensaje** (Textarea)
-   - Label: "¿Qué te gustaría compartir con nosotros?"
-   - Required: No
+   - Index: 4
+   - **Importante:** Este campo se usa como query de búsqueda en Google
 
 #### 3.2 Configurar Webhook
 
@@ -298,60 +343,50 @@ Crea un formulario en Tally con estos campos (en este orden):
 ### System Prompt del AI Agent
 
 ```
-Eres un experto en ventas B2B y redacción de emails comerciales personalizados.
+You are an expert sales outreach specialist who creates highly personalized cold emails.
 
-Tu tarea es generar un email altamente personalizado para un lead que completó un formulario de contacto.
+Your task is to:
+1. Analyze the recent news about the lead's company
+2. Identify the most relevant and recent news item that could serve as a conversation starter
+3. Craft a personalized email that:
+   - Opens with a genuine reference to the news (not generic congratulations)
+   - Shows you understand their business context
+   - Briefly introduces value proposition
+   - Includes a clear call-to-action
+   - Keeps the tone professional but conversational
+   - Is concise (under 150 words)
 
-INFORMACIÓN DEL LEAD:
-- Nombre: {{ datos del formulario }}
-- Email: {{ datos del formulario }}
-- Empresa: {{ datos del formulario }}
-- Cargo: {{ datos del formulario }}
-- Mensaje: {{ datos del formulario }}
+Guidelines:
+- Use the news as a natural icebreaker, not a forced compliment
+- Be specific about which news item you're referencing
+- Avoid generic phrases like "I came across your company"
+- Make it about them, not about you
+- Keep subject line intriguing but professional (under 60 characters)
 
-INVESTIGACIÓN DE LA EMPRESA:
-{{ Noticias de Serper }}
+Return structured output with subject, emailBody, and newsReference fields.
+```
 
-INSTRUCCIONES:
+### User Prompt (Input al AI Agent)
 
-1. PERSONALIZACIÓN:
-   - Menciona específicamente el cargo y la empresa del lead
-   - Si hay noticias recientes, refiérelas de forma natural
-   - Usa el mensaje del lead para entender sus necesidades
-   - Evita sonar genérico o templado
+```
+Lead Information:
+- Name: {{ First name }} {{ Last name }}
+- Email: {{ Email }}
+- Company: {{ companyName }}
+- Company Domain: {{ companyDomain }}
 
-2. ESTRUCTURA DEL EMAIL:
-   - Subject: Atractivo y personalizado (max 60 caracteres)
-   - Greeting: Saludo cordial usando el nombre
-   - Body: 2-3 párrafos (200-300 palabras)
-     * Párrafo 1: Contexto y empatía con su situación
-     * Párrafo 2: Cómo podemos ayudar (beneficios concretos)
-     * Párrafo 3: Call to action claro y de bajo compromiso
-   - Closing: Cierre profesional
-   - Signature: Tu nombre y cargo
-
-3. TONO:
-   - Profesional pero cercano
-   - Consultivo, no vendedor agresivo
-   - Enfocado en ayudar, no en vender
-   - Lenguaje claro y directo
-
-4. EVITAR:
-   - Lenguaje corporativo genérico
-   - Promesas vacías
-   - Presión de venta
-   - Emails largos (máximo 300 palabras)
-
-Responde SOLO con el JSON estructurado. No agregues texto adicional.
+All Research Results (Google Search):
+{{ JSON.stringify($json.organic) }}
 ```
 
 ### Por Qué Este Prompt Funciona
 
-- **Contexto claro:** La IA sabe exactamente qué información tiene disponible
-- **Estructura definida:** No hay ambigüedad sobre el formato esperado
-- **Restricciones explícitas:** "Evita X" previene errores comunes
-- **Tono específico:** "Profesional pero cercano" es más preciso que "amigable"
-- **Output Parser:** Garantiza formato JSON consistente
+- **Enfoque en noticias como icebreaker:** No es un email genérico, usa contexto real
+- **Instrucciones específicas:** "under 150 words", "under 60 characters" elimina ambigüedad
+- **Prohibiciones explícitas:** "Avoid generic phrases" previene emails templados
+- **Resultados orgánicos de Google:** La IA tiene acceso a múltiples fuentes, no solo títulos
+- **Output estructurado:** 3 campos claros (subject, emailBody, newsReference)
+- **Tono definido:** "Professional but conversational" es específico y medible
 
 ---
 
@@ -389,41 +424,57 @@ Responde SOLO con el JSON estructurado. No agregues texto adicional.
 
 ### Ejemplo de Email Generado
 
-**Input (formulario):**
-- Nombre: Juan Pérez
+**Input (formulario Tally):**
+- First name: Juan
+- Last name: Pérez
 - Email: juan@techstartup.com
-- Empresa: TechStartup
-- Sitio: https://techstartup.com
-- Cargo: CTO
-- Mensaje: "Buscamos automatizar nuestro proceso de ventas"
+- Company Search Query: "TechStartup funding news"
 
-**Noticias encontradas:**
-- "TechStartup levanta $5M en Serie A"
-- "TechStartup lanza nueva plataforma de IA"
+**Procesamiento:**
+1. Extract Company Domain: `techstartup.com` → `Techstartup`
+2. Serper Search: Busca "TechStartup funding news" en Google
+3. Resultados encontrados:
+   - "TechStartup Raises $5M Series A to Scale AI Platform"
+   - "TechStartup Launches New Automation Tools for B2B"
+   - "TechStartup Named in Forbes 30 Under 30"
 
-**Output (email generado):**
+**Output (JSON estructurado):**
+
+```json
+{
+  "subject": "Your Series A and scaling automation at Techstartup",
+  "emailBody": "Hi Juan,\n\nI noticed Techstartup just raised $5M in Series A - congratulations on the milestone. Scaling from seed to Series A often means your sales processes need to evolve faster than your team can grow.\n\nWe help B2B companies automate their lead qualification and outreach without sacrificing personalization. Companies similar to yours typically see 3x pipeline growth within 60 days.\n\nWould a 15-minute call make sense to explore if this approach fits your current priorities?",
+  "newsReference": "TechStartup Raises $5M Series A to Scale AI Platform (February 2026)"
+}
+```
+
+**Email final visto por el lead:**
 
 ```
-Subject: Felicitaciones por la Serie A, Juan
+Subject: Your Series A and scaling automation at Techstartup
 
-Hola Juan,
+Hi Juan,
 
-Vi que TechStartup acaba de levantar $5M en Serie A - ¡felicitaciones! 
-Entiendo que con el crecimiento viene la necesidad de escalar procesos, 
-especialmente en ventas.
+I noticed Techstartup just raised $5M in Series A - congratulations on the 
+milestone. Scaling from seed to Series A often means your sales processes 
+need to evolve faster than your team can grow.
 
-Como CTO, sabes que la automatización no es solo "nice to have" - es 
-crítica para mantener márgenes saludables mientras escalas. Nuestra 
-plataforma ayuda a equipos técnicos como el tuyo a automatizar desde 
-la captación hasta el follow-up, sin necesidad de contratar más SDRs.
+We help B2B companies automate their lead qualification and outreach without 
+sacrificing personalization. Companies similar to yours typically see 3x 
+pipeline growth within 60 days.
 
-¿Te parece útil una llamada de 15 minutos para revisar cómo otras startups 
-en crecimiento están resolviendo este problema?
-
-Saludos,
-[Tu nombre]
-[Tu cargo]
+Would a 15-minute call make sense to explore if this approach fits your 
+current priorities?
 ```
+
+**Guardado en HubSpot:**
+- Contact: juan@techstartup.com
+- First Name: Juan
+- Last Name: Pérez
+- Company: TechStartup
+- Custom Property `personalized_email_subject`: "Your Series A and scaling..."
+- Custom Property `personalized_email_body`: "Hi Juan, I noticed..."
+- Custom Property `news_reference`: "TechStartup Raises $5M..."
 
 ---
 
@@ -452,11 +503,13 @@ curl -X POST https://tu-instancia.app.n8n.cloud/webhook/tally-form-submission \
 #### Probar Serper Manualmente
 
 ```bash
-curl -X POST https://google.serper.dev/news \
+curl -X POST https://google.serper.dev/search \
   -H "X-API-KEY: tu_serper_api_key" \
   -H "Content-Type: application/json" \
-  -d '{"q": "techcrunch", "num": 3}'
+  -d '{"q": "TechStartup funding news"}'
 ```
+
+**Nota:** El endpoint cambió de `/news` a `/search` para obtener resultados orgánicos más completos.
 
 #### Probar OpenRouter Manualmente
 
@@ -465,13 +518,17 @@ curl https://openrouter.ai/api/v1/chat/completions \
   -H "Authorization: Bearer tu_openrouter_api_key" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "nousresearch/hermes-3-llama-3.1-405b:free",
+    "model": "z-ai/glm-4.5-air:free",
     "messages": [
-      {"role": "system", "content": "Eres un asistente útil"},
-      {"role": "user", "content": "Hola"}
+      {"role": "system", "content": "You are a helpful assistant"},
+      {"role": "user", "content": "Hello"}
     ]
   }'
 ```
+
+**Modelos actualizados:**
+- Primario: `z-ai/glm-4.5-air:free` (más rápido, mejor con structured outputs)
+- Fallback: `openai/gpt-oss-120b:free` (conectado al Output Parser como alternativa)
 
 ---
 
@@ -495,9 +552,10 @@ curl https://openrouter.ai/api/v1/chat/completions \
 
 **Solución:**
 1. Verifica tu API key en serper.dev/dashboard
-2. En n8n, edita el nodo "Workflow Configuration"
-3. Asegúrate de que `serperApiKey` tenga el valor correcto
-4. NO incluyas espacios ni caracteres extra
+2. En n8n, edita el nodo "Search Company News (Serper)"
+3. Verifica la autenticación: Generic Credential Type → Header Auth
+4. Header Name debe ser exactamente: `X-API-KEY`
+5. Header Value: Tu API key de Serper (sin espacios ni comillas extras)
 
 ---
 
@@ -506,38 +564,49 @@ curl https://openrouter.ai/api/v1/chat/completions \
 **Causa:** Output Parser mal configurado o modelo incompatible.
 
 **Solución:**
-1. Verifica que el Output Parser esté conectado al AI Agent
-2. Revisa el schema JSON (debe tener las 5 propiedades)
-3. Cambia a `google/gemini-2.0-flash-exp` (más confiable con JSON)
-4. Asegúrate de que el System Prompt termine con: "Responde SOLO con JSON"
+1. Verifica que el Email Structure Parser esté conectado al AI Agent
+2. Revisa el schema JSON (debe tener exactamente 3 propiedades: subject, emailBody, newsReference)
+3. El modelo actual `z-ai/glm-4.5-air:free` es muy confiable con JSON
+4. Si falla, usa el modelo fallback `openai/gpt-oss-120b:free`
+5. Asegúrate de que "Auto Fix" esté enabled en el Output Parser
 
 ---
 
 ### Error: "HubSpot devuelve 400 Bad Request"
 
-**Causa:** Campos requeridos faltantes o mal mapeados.
+**Causa:** Custom properties no existen en HubSpot o campos mal mapeados.
 
 **Solución:**
-1. Verifica que el formulario Tally tenga TODOS los campos
-2. Los labels deben coincidir (ej: "nombre", "email", "empresa")
-3. En n8n, edita el nodo HubSpot
-4. Usa "Resolve Data: Using Fields Below"
-5. Mapea cada campo manualmente
+1. **Crear custom properties en HubSpot primero:**
+   - Ve a Settings → Properties → Create property
+   - Crea estas 3 propiedades tipo "Single-line text":
+     * `personalized_email_subject`
+     * `personalized_email_body`
+     * `news_reference`
+2. Verifica que el formulario Tally tenga los campos en el ORDEN correcto (índices 0, 1, 2, 4)
+3. En n8n, verifica que los mappings usen los índices correctos:
+   - `fields[0]` = First name
+   - `fields[1]` = Last name
+   - `fields[2]` = Email
+   - `fields[4]` = Company/Query
 
 ---
 
 ### Los emails generados son genéricos
 
-**Causa:** Prompt poco específico o datos insuficientes.
+**Causa:** Búsqueda de Google devuelve resultados poco relevantes o prompt necesita ajustes.
 
 **Solución:**
-1. Mejora el System Prompt:
-   - Agrega ejemplos de "buenos" vs "malos" emails
-   - Especifica exactamente qué mencionar de las noticias
-   - Prohibe frases genéricas ("a quien corresponda", "espero que estés bien")
-2. Verifica que Serper esté devolviendo noticias relevantes
-3. Aumenta Max Tokens a 1500 para emails más detallados
-4. Usa Gemini Flash (mejor calidad que modelos gratuitos)
+1. Mejora la query de búsqueda en el formulario:
+   - En lugar de solo "Company Name", pide "Company Name + recent news" o "Company Name funding"
+   - Esto ayuda a que Serper devuelva resultados más relevantes
+2. Mejora el System Prompt:
+   - Especifica exactamente cómo usar las noticias: "Open with a genuine reference to the news"
+   - Prohibe frases genéricas explícitamente
+3. Verifica que Serper esté devolviendo resultados orgánicos completos:
+   - Revisa `$json.organic` en el nodo AI Agent
+   - Debe tener al menos 3-5 resultados con snippets
+4. Considera usar el modelo fallback `openai/gpt-oss-120b:free` que es excelente para personalización
 
 ---
 
