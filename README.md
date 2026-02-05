@@ -77,14 +77,15 @@ Automatizar el proceso completo de captación de leads: desde el formulario hast
 - Gmail (alertas automáticas)
 
 **Objetivo:**  
-Construir un sistema de monitoreo financiero que analiza noticias 24/7, evalúa sentiment (Bullish/Bearish/Neutral) y envía alertas solo cuando detecta señales de mercado significativas.
+Construir un sistema de monitoreo financiero que analiza noticias 24/7, evalúa sentiment (Bullish/Bearish/Neutral) y envía alertas automáticas con análisis profesional y recomendaciones de trading.
 
 **Lo que aprenderás:**
-- ✅ Monitoreo automatizado con RSS Feeds
-- ✅ Filtrado de noticias por tickers específicos
-- ✅ Análisis de sentiment financiero con IA
+- ✅ Monitoreo automatizado con RSS Feeds 24/7
+- ✅ Filtrado inteligente de noticias por tickers y keywords
+- ✅ Optimización de recursos con filtros condicionales (IF)
+- ✅ Análisis de sentiment financiero con IA (modelo GLM-4.5)
 - ✅ Estructuración de recomendaciones (BUY/SELL/HOLD)
-- ✅ Alertas condicionales vía email HTML
+- ✅ Alertas automáticas vía email HTML profesional
 
 ---
 

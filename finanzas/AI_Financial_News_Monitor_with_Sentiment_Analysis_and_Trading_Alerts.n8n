@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-02-05T16:02:56.506Z",
+  "updatedAt": "2026-02-05T16:31:43.481Z",
   "createdAt": "2026-02-03T20:39:16.407Z",
   "id": "GOBWQwHpCECxsYt-8T-Bx",
   "name": "AI Financial News Monitor with Sentiment Analysis and Trading Alerts",
   "description": null,
-  "active": false,
+  "active": true,
   "isArchived": false,
   "nodes": [
     {
@@ -24,13 +24,13 @@
       "typeVersion": 1,
       "position": [
         1088,
-        48
+        144
       ]
     },
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const keywords = ['NVIDIA', 'TSLA', 'AAPL', 'BTC', 'COMMODITY'];\nconst title = $json.title.toUpperCase();\nconst matches = keywords.filter(k => title.includes(k));\n\nreturn {\n  interesting: matches.length > 0,\n  ticker: matches[0] || 'GENERIC',\n  title: $json.title,\n  link: $json.link\n};"
+        "jsCode": "const keywords = ['NVIDIA', 'TSLA', 'AAPL', 'BTC', 'COMMODITY', 'AI'];\nconst title = $json.title.toUpperCase();\nconst matches = keywords.filter(k => title.includes(k));\n\nreturn {\n  interesting: matches.length > 0,\n  ticker: matches[0] || 'GENERIC',\n  title: $json.title,\n  link: $json.link\n};"
       },
       "id": "315ada6c-e7d8-44c5-bef2-45aed4659fab",
       "name": "Ticker Filter",
@@ -38,7 +38,7 @@
       "typeVersion": 2,
       "position": [
         1312,
-        48
+        144
       ]
     },
     {
@@ -59,7 +59,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1536,
+        1760,
         48
       ],
       "credentials": {
@@ -83,7 +83,7 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        1792,
+        2016,
         48
       ]
     },
@@ -97,7 +97,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
       "typeVersion": 1,
       "position": [
-        1760,
+        1984,
         272
       ],
       "credentials": {
@@ -118,13 +118,13 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        1888,
+        2112,
         272
       ]
     },
     {
       "parameters": {
-        "sendTo": "YOUR_EMAIL@gmail.com",
+        "sendTo": "gobeamariano@gmail.com",
         "subject": "=🚨 Alerta de Mercado: {{ $('Ticker Filter').item.json.ticker }} - {{ $json.output.recommendation }}",
         "message": "=<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }\n    .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }\n    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }\n    .header h1 { margin: 0; font-size: 24px; }\n    .alert-icon { font-size: 48px; margin-bottom: 10px; }\n    .content { padding: 30px; }\n    .ticker-badge { display: inline-block; background-color: #667eea; color: white; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 18px; margin-bottom: 20px; }\n    .recommendation-box { background-color: {{ $json.output.recommendation === 'BUY' ? '#4caf50' : ($json.output.recommendation === 'SELL' ? '#f44336' : '#ff9800') }}; color: white; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0; }\n    .recommendation-box h2 { margin: 0 0 10px 0; font-size: 28px; }\n    .score-badge { background-color: rgba(255,255,255,0.2); display: inline-block; padding: 10px 20px; border-radius: 20px; font-size: 20px; font-weight: bold; }\n    .reasoning-section { background-color: #f8f9fa; padding: 20px; border-left: 4px solid #667eea; margin: 20px 0; border-radius: 4px; }\n    .reasoning-section h3 { margin-top: 0; color: #333; }\n    .reasoning-section p { color: #555; line-height: 1.6; margin: 0; }\n    .source-section { margin-top: 30px; padding-top: 20px; border-top: 2px solid #e0e0e0; }\n    .source-link { display: inline-block; background-color: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin-top: 10px; }\n    .source-link:hover { background-color: #5568d3; }\n    .footer { background-color: #f8f9fa; padding: 20px; text-align: center; color: #777; font-size: 12px; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <div class=\"alert-icon\">🚨</div>\n      <h1>Alerta de Mercado Financiero</h1>\n    </div>\n    <div class=\"content\">\n      <div style=\"text-align: center;\">\n        <span class=\"ticker-badge\">{{ $('Ticker Filter').item.json.ticker }}</span>\n      </div>\n      \n      <div class=\"recommendation-box\">\n        <h2>{{ $json.output.recommendation }}</h2>\n        <div class=\"score-badge\">Score: {{ $json.output.score }}/10</div>\n      </div>\n      \n      <div class=\"reasoning-section\">\n        <h3>📊 Análisis del Analista</h3>\n        <p>{{ $json.output.reasoning }}</p>\n      </div>\n      \n      <div class=\"source-section\">\n        <h3 style=\"color: #333; margin-top: 0;\">📰 Fuente de la Noticia</h3>\n        <p style=\"color: #555;\">{{ $('Ticker Filter').item.json.title }}</p>\n        <a href=\"{{ $('Ticker Filter').item.json.link }}\" class=\"source-link\" target=\"_blank\">Leer Artículo Completo</a>\n      </div>\n    </div>\n    <div class=\"footer\">\n      <p>Este es un mensaje automático generado por tu sistema de monitoreo financiero con IA.</p>\n      <p>Powered by n8n AI Financial Monitor</p>\n    </div>\n  </div>\n</body>\n</html>",
         "options": {}
@@ -134,14 +134,14 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
-        2256,
+        2480,
         48
       ],
       "webhookId": "1dba2c63-00c9-4184-a2d8-533a04d84b86",
       "credentials": {
         "gmailOAuth2": {
-          "id": "YOUR_GMAIL_CREDENTIAL_ID",
-          "name": "YOUR_EMAIL@gmail.com Gmail"
+          "id": "qBqHR4Ctwvw5icyM",
+          "name": "gobeamariano@gmail.com Gmail"
         }
       }
     },
@@ -153,7 +153,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
       "typeVersion": 1,
       "position": [
-        1968,
+        2192,
         480
       ],
       "id": "f87f3c10-0b9d-4287-8d26-03b637817c90",
@@ -164,6 +164,51 @@
           "name": "OpenRouter account"
         }
       }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d809c34b-ae2a-4e2c-90e6-48d963075a32",
+              "leftValue": "={{ $json.interesting }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1536,
+        144
+      ],
+      "id": "68c5754b-00be-4391-abcb-72f25fc413ab",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        240
+      ],
+      "id": "0948bfb8-127b-4c53-a2b0-c488cc919e10",
+      "name": "No Operation, do nothing"
     }
   ],
   "connections": {
@@ -182,7 +227,7 @@
       "main": [
         [
           {
-            "node": "Jina Reader - Clean Article",
+            "node": "If",
             "type": "main",
             "index": 0
           }
@@ -243,6 +288,24 @@
           }
         ]
       ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Jina Reader - Clean Article",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -254,76 +317,11 @@
   "meta": {
     "templateCredsSetupCompleted": true
   },
-  "pinData": {
-    "RSS Feed - Yahoo Finance": [
-      {
-        "json": {
-          "title": "3 Warning Signs That the Stock Market Today Is in an Artificial Intelligence (AI) Bubble",
-          "link": "https://finance.yahoo.com/news/3-warning-signs-stock-market-124500662.html",
-          "pubDate": "2026-02-02T12:45:00Z",
-          "guid": "3-warning-signs-stock-market-124500662.html",
-          "isoDate": "2026-02-02T12:45:00.000Z"
-        }
-      }
-    ],
-    "Ticker Filter": [
-      {
-        "json": {
-          "interesting": true,
-          "ticker": "AI",
-          "title": "3 Warning Signs That the Stock Market Today Is in an Artificial Intelligence (AI) Bubble",
-          "link": "https://finance.yahoo.com/news/3-warning-signs-stock-market-124500662.html"
-        },
-        "pairedItem": {
-          "item": 0
-        }
-      }
-    ],
-    "Jina Reader - Clean Article": [
-      {
-        "json": {
-          "data": "Title: 3 Warning Signs That the Stock Market Today Is in an Artificial Intelligence (AI) Bubble\n\nURL Source: https://finance.yahoo.com/news/3-warning-signs-stock-market-124500662.html\n\nPublished Time: 2026-02-02T12:45:00.000Z\n\nMarkdown Content:\n3 Warning Signs That the Stock Market Today Is in an Artificial Intelligence (AI) Bubble\n===============\n\nOops, something went wrong\n\n[Skip to navigation](https://finance.yahoo.com/news/3-warning-signs-stock-market-124500662.html#ybar-navigation)[Skip to main content](https://finance.yahoo.com/news/3-warning-signs-stock-market-124500662.html#nimbus-app)[Skip to right column](https://finance.yahoo.com/news/3-warning-signs-stock-market-124500662.html#right-rail)\n\n### [News](https://www.yahoo.com/)\n\n*   [Today's news](https://www.yahoo.com/news/)\n*   [US](https://www.yahoo.com/news/us/)\n*   [Politics](https://www.yahoo.com/news/politics/)\n*   [2025 Election](https://www.yahoo.com/events/elections/)\n*   [World](https://www.yahoo.com/news/world/)\n*   [Weather](https://weather.yahoo.com/)\n*   [Climate change](https://www.yahoo.com/issues/climate-change/)\n*   [Health](https://health.yahoo.com/)\n\n    *   [Wellness](https://health.yahoo.com/wellness/)\n\n        *   [Mental health](https://health.yahoo.com/wellness/mental-health/)\n        *   [Sexual health](https://health.yahoo.com/wellness/sexual-health/)\n        *   [Dermatology](https://health.yahoo.com/wellness/dermatology/)\n        *   [Oral health](https://health.yahoo.com/wellness/oral-health/)\n        *   [Hair loss](https://health.yahoo.com/wellness/hair-loss/)\n        *   [Foot health](https://health.yahoo.com/wellness/foot-health/)\n\n    *   [Nutrition](https://health.yahoo.com/nutrition/)\n\n        *   [Healthy eating](https://health.yahoo.com/nutrition/healthy-eating/)\n        *   [Meal delivery](https://health.yahoo.com/nutrition/meal-delivery/)\n        *   [Weight loss](https://health.yahoo.com/nutrition/weight-loss/)\n        *   [Vitamins and supplements](https://health.yahoo.com/nutrition/vitamins-supplements/)\n\n    *   [Fitness](https://health.yahoo.com/fitness/)\n\n        *   [Equipment](https://health.yahoo.com/fitness/equipment/)\n        *   [Exercise](https://health.yahoo.com/fitness/exercise/)\n\n    *   [Women's health](https://health.yahoo.com/womens-health/)\n    *   [Sleep](https://health.yahoo.com/sleep/)\n    *   [Healthy aging](https://health.yahoo.com/healthy-aging/)\n\n        *   [Hearing](https://health.yahoo.com/healthy-aging/hearing/)\n        *   [Mobility](https://health.yahoo.com/healthy-aging/mobility/)\n\n*   [Science](https://www.yahoo.com/news/science/)\n*   [Originals](https://www.yahoo.com/guides/originals/)\n\n    *   [The 360](https://www.yahoo.com/events/elections/)\n\n*   [Newsletters](https://news.yahoo.com/newsletters/)\n*   [Games](https://www.yahoo.com/games)\n\n### [Life](https://www.yahoo.com/lifestyle/)\n\n*   [Health](https://health.yahoo.com/)\n\n    *   [Wellness](https://health.yahoo.com/wellness/)\n\n        *   [Nutrition](https://health.yahoo.com/wellness/nutrition/)\n        *   [Fitness](https://health.yahoo.com/wellness/fitness/)\n        *   [Healthy aging](https://health.yahoo.com/wellness/healthy-aging/)\n        *   [Sleep](https://health.yahoo.com/wellness/sleep/)\n\n    *   [Your body](https://health.yahoo.com/your-body/)\n\n        *   [Children's health](https://health.yahoo.com/your-body/childrens-health/)\n        *   [Dermatology](https://health.yahoo.com/your-body/dermatology/)\n        *   [Foot health](https://health.yahoo.com/your-body/foot-health/)\n        *   [Hair loss](https://health.yahoo.com/your-body/hair-loss/)\n        *   [Oral health](https://health.yahoo.com/your-body/oral-health/)\n        *   [Sexual health](https://health.yahoo.com/your-body/sexual-health/)\n        *   [Weight management](https://health.yahoo.com/your-body/weight-management/)\n        *   [Women's health](https://health.yahoo.com/your-body/womens-health/)\n\n    *   [Conditions](https://health.yahoo.com/conditions/)\n\n        *   [Cardiovascular health](https://health.yahoo.com/conditions/cardiovascular-health/)\n        *   [Digestive health](https://health.yahoo.com/conditions/digestive-health/)\n        *   [Endocrine system](https://health.yahoo.com/conditions/endocrine-system/)\n        *   [Hearing](https://health.yahoo.com/conditions/hearing/)\n        *   [Mental health](https://health.yahoo.com/conditions/mental-health/)\n\n*   [Parenting](https://www.yahoo.com/lifestyle/family-relationships/)\n\n    *   [Family health](https://www.yahoo.com/lifestyle/family-relationships/)\n    *   [So mini ways](https://www.yahoo.com/guides/so-mini-ways/)\n\n*   [Style and beauty](https://www.yahoo.com/lifestyle/style-beauty/)\n\n    *   [It Figures](https://www.yahoo.com/guides/it-figures/)\n    *   [Unapologetically](https://www.yahoo.com/guides/unapologetically/)\n\n*   [Horoscopes](https://www.yahoo.com/lifestyle/horoscope/)\n*   [Shopping](https://shopping.yahoo.com/)\n\n    *   [Style](https://shopping.yahoo.com/style/)\n\n        *   [Accessories](https://shopping.yahoo.com/style/accessories/)\n        *   [Clothing](https://shopping.yahoo.com/style/clothing/)\n        *   [Luggage](https://shopping.yahoo.com/style/luggage/)\n        *   [Shoes](https://shopping.yahoo.com/style/shoes/)\n\n    *   [Beauty](https://shopping.yahoo.com/beauty/)\n\n        *   [Fragrance](https://shopping.yahoo.com/beauty/fragrance/)\n        *   [Hair](https://shopping.yahoo.com/beauty/hair/)\n        *   [Makeup](https://shopping.yahoo.com/beauty/makeup/)\n        *   [Nails](https://shopping.yahoo.com/beauty/nails/)\n        *   [Skincare](https://shopping.yahoo.com/beauty/skincare/)\n        *   [Sunscreen](https://shopping.yahoo.com/beauty/sunscreen/)\n\n    *   [Health](https://shopping.yahoo.com/health/)\n\n        *   [Dental](https://shopping.yahoo.com/health/dental/)\n        *   [Fitness](https://shopping.yahoo.com/health/fitness/)\n        *   [Hair loss](https://shopping.yahoo.com/health/hair-loss/)\n        *   [Hearing](https://shopping.yahoo.com/health/hearing/)\n        *   [Mental health](https://shopping.yahoo.com/health/mental-health/)\n        *   [Mobility](https://shopping.yahoo.com/health/mobility/)\n        *   [Nutrition](https://shopping.yahoo.com/health/nutrition/)\n        *   [Personal care](https://shopping.yahoo.com/health/personal-care/)\n        *   [Sexual health](https://shopping.yahoo.com/health/sexual-health/)\n        *   [Sleep](https://shopping.yahoo.com/health/sleep/)\n        *   [Women's health](https://shopping.yahoo.com/health/womens-health/)\n\n    *   [Home and garden](https://shopping.yahoo.com/home-garden/)\n\n        *   [Bath](https://shopping.yahoo.com/home-garden/bath/)\n        *   [Bedding](https://shopping.yahoo.com/home-garden/bedding/)\n        *   [Cleaning](https://shopping.yahoo.com/home-garden/cleaning/)\n        *   [Gardening](https://shopping.yahoo.com/home-garden/gardening/)\n        *   [Kitchen](https://shopping.yahoo.com/home-garden/kitchen/)\n        *   [Outdoor](https://shopping.yahoo.com/home-garden/outdoor/)\n\n    *   [Pets](https://shopping.yahoo.com/pets/)\n    *   [Tech](https://shopping.yahoo.com/tech/)\n\n        *   [Accessories](https://shopping.yahoo.com/tech/accessories/)\n        *   [Audio](https://shopping.yahoo.com/tech/audio/)\n        *   [Auto](https://shopping.yahoo.com/tech/auto/)\n        *   [Computers](https://shopping.yahoo.com/tech/computing/)\n        *   [Phones](https://shopping.yahoo.com/tech/phones/)\n        *   [Smart home](https://shopping.yahoo.com/tech/smart-home/)\n        *   [Streaming](https://shopping.yahoo.com/tech/streaming/)\n        *   [TVs](https://shopping.yahoo.com/tech/tvs/)\n\n    *   [Gift ideas](https://shopping.yahoo.com/gift-ideas/)\n\n        *   [Best gifts for men](https://shopping.yahoo.com/gift-ideas/article/best-gift-ideas-for-men-200430444.html)\n        *   [Best gift cards](https://shopping.yahoo.com/gift-ideas/article/best-gift-cards-184432258.html)\n        *   [Best gifts for mom](https://shopping.yahoo.com/gift-ideas/article/best-gifts-for-mom-172933189.html)\n        *   [Best gifts for teens](https://shopping.yahoo.com/gift-ideas/article/best-gifts-for-teens-185109070.html)\n\n    *   [Stores](https://shopping.yahoo.com/stores/)\n\n        *   [Amazon](https://shopping.yahoo.com/stores/amazon/)\n        *   [Best Buy](https://shopping.yahoo.com/stores/best-buy/)\n        *   [Home Depot](https://shopping.yahoo.com/stores/home-depot/)\n        *   [Macy's](https://shopping.yahoo.com/stores/macys/)\n        *   [Nordstrom](https://shopping.yahoo.com/stores/nordstrom/)\n        *   [Target](https://shopping.yahoo.com/stores/target/)\n        *   [Walmart](https://shopping.yahoo.com/stores/walmart/)\n        *   [Wayfair](https://shopping.yahoo.com/stores/wayfair/)\n\n    *   [Shopping Guides](https://shopping.yahoo.com/guides/)\n\n        *   [Best cordless stick vacuums](https://shopping.yahoo.com/home-garden/cleaning/article/best-cordless-stick-vacuums-194920452.html)\n        *   [Best water bottles](https://shopping.yahoo.com/home-garden/kitchen/article/best-water-bottles-151922237.html)\n        *   [Best vacuums](https://shopping.yahoo.com/home-garden/cleaning/article/best-vacuums-tested-and-reviewed-220428339.html)\n        *   [Best air fryers](https://shopping.yahoo.com/home-garden/kitchen/article/best-air-fryers-191551179.html)\n        *   [Best luggage](https://shopping.yahoo.com/style/luggage/article/best-luggage-185322761.html)\n        *   [Best jeans](https://shopping.yahoo.com/style/clothing/article/best-jeans-193623018.html)\n        *   [Best bras](https://shopping.yahoo.com/style/clothing/article/best-bras-152359298.html)\n        *   [Best nontoxic nail polish](https://shopping.yahoo.com/beauty/nails/article/the-best-non-toxic-nail-polish-201830177.html)\n        *   [Best under eye cream](https://shopping.yahoo.com/beauty/skincare/article/best-under-eye-creams-223255282.html)\n        *   [Best skin tightening creams](https://shopping.yahoo.com/beauty/skincare/article/best-skin-tightening-creams-212112383.html)\n        *   [Best coffee makers](https://shopping.yahoo.com/home-garden/kitchen/article/best-single-serve-coffee-maker-215624408.html)\n\n    *   [Deals](https://shopping.yahoo.com/deals/)\n    *   [Toys and games](https://shopping.yahoo.com/toys-games/)\n    *   [General](https://shopping.yahoo.com/general/)\n    *   [Valentine's Day gifts](https://shopping.yahoo.com/valentines-day-gifts/)\n\n        *   [Best Valentine's Day gifts](https://shopping.yahoo.com/gift-ideas/article/the-best-valentines-day-gifts-to-shop-for-all-the-loves-of-your-life-213456733.html)\n        *   [Valentine's Day gifts for her](https://shopping.yahoo.com/gift-ideas/article/best-valentines-day-gifts-for-her-165952434.html)\n        *   [Valentine's Day gifts for him](https://shopping.yahoo.com/gift-ideas/article/best-valentines-day-gifts-for-him-154928813.html)\n\n*   [Food](https://www.yahoo.com/lifestyle/food-drink/)\n*   [Travel](https://travel.yahoo.com/)\n*   [Autos](https://autos.yahoo.com/)\n\n    *   [EV & Future Tech](https://autos.yahoo.com/ev-and-future-tech/)\n    *   [Classic & Collector](https://autos.yahoo.com/classic-and-collector/)\n    *   [Deals & Buying Guides](https://autos.yahoo.com/deals-and-buying-guides/)\n    *   [Ownership](https://autos.yahoo.com/ownership/)\n    *   [Safety & Recalls](https://autos.yahoo.com/safety-and-recalls/)\n    *   [Policy & Environment](https://autos.yahoo.com/policy-and-environment/)\n    *   [New Vehicles & Reviews](https://autos.yahoo.com/new-vehicles-and-reviews/)\n    *   [Auto Shows](https://autos.yahoo.com/auto-shows/)\n    *   [General](https://autos.yahoo.com/general/)\n    *   [People & Culture](https://autos.yahoo.com/people-and-culture/)\n\n*   [Gift ideas](https://shopping.yahoo.com/gift-ideas/)\n*   [Buying guides](https://shopping.yahoo.com/guides/)\n*   [Valentine's Day gifts](https://shopping.yahoo.com/gift-ideas/article/the-best-valentines-day-gifts-to-shop-for-all-the-loves-of-your-life-213456733.html)\n\n### [Entertainment](https://www.yahoo.com/entertainment/)\n\n*   [Celebrity](https://www.yahoo.com/entertainment/celebrity/)\n*   [TV](https://www.yahoo.com/entertainment/tv/)\n*   [Movies](https://www.yahoo.com/entertainment/movies/)\n*   [Music](https://www.yahoo.com/entertainment/music/)\n*   [How to Watch](https://www.yahoo.com/guides/how-to-watch/)\n*   [Interviews](https://www.yahoo.com/guides/interviews/)\n*   [Videos](https://www.yahoo.com/guides/videos/)\n\n### [Finance](https://finance.yahoo.com/)\n\n*   [My Portfolio](https://finance.yahoo.com/portfolios/)\n*   [News](https://finance.yahoo.com/news/)\n\n    *   [Latest](https://finance.yahoo.com/topic/latest-news/)\n    *   [Originals](https://finance.yahoo.com/topic/yahoo-finance-originals/)\n    *   [Premium news](https://finance.yahoo.com/topic/premium-news)\n    *   [Newsletters](https://finance.yahoo.com/news/sign-up-for-yahoo-finances-morning-brief-174158888.html/)\n    *   [Stock market](https://finance.yahoo.com/topic/stock-market-news/)\n    *   [Crypto](https://finance.yahoo.com/topic/crypto/)\n    *   [Earnings](https://finance.yahoo.com/topic/earnings/)\n    *   [Tariffs](https://finance.yahoo.com/topic/tariffs/)\n    *   [Tax Insights via H&R Block](https://finance.yahoo.com/topic/hrb-2026/)\n    *   [More Topics](https://finance.yahoo.com/news/)\n\n        *   [Economies](https://finance.yahoo.com/topic/economic-news/)\n        *   [Tech](https://finance.yahoo.com/topic/tech/)\n        *   [Housing](https://finance.yahoo.com/topic/housing-market/)\n\n*   [Markets](https://finance.yahoo.com/markets/)\n\n    *   [Stocks](https://finance.yahoo.com/markets/stocks/)\n\n        *   [Most active](https://finance.yahoo.com/markets/stocks/most-active/)\n        *   [Day gainers](https://finance.yahoo.com/markets/stocks/gainers/)\n        *   [Day losers](https://finance.yahoo.com/markets/stocks/losers/)\n        *   [Trending](https://finance.yahoo.com/markets/stocks/trending/)\n        *   [Highest dividend](https://finance.yahoo.com/markets/stocks/highest-dividend/)\n        *   [Small cap](https://finance.yahoo.com/markets/stocks/small-cap-stocks/)\n        *   [Large cap](https://finance.yahoo.com/markets/stocks/large-cap-stocks/)\n        *   [Most expensive](https://finance.yahoo.com/markets/stocks/most-expensive-stocks/)\n        *   [Highest beta](https://finance.yahoo.com/markets/stocks/highest-beta-stocks/)\n        *   [Pink sheet](https://finance.yahoo.com/markets/stocks/pink-sheet-stocks/)\n        *   [Unusual volume](https://finance.yahoo.com/markets/stocks/unusual-volume-stocks/)\n\n    *   [Crypto](https://finance.yahoo.com/markets/crypto/all/)\n\n        *   [Most active](https://finance.yahoo.com/markets/crypto/most-active/)\n        *   [Day gainers](https://finance.yahoo.com/markets/crypto/gainers/)\n        *   [Day losers](https://finance.yahoo.com/markets/crypto/losers/)\n\n    *   [Prediction markets](https://finance.yahoo.com/markets/prediction/trending/)\n\n        *   [Finance](https://finance.yahoo.com/markets/prediction/finance/)\n        *   [Crypto](https://finance.yahoo.com/markets/prediction/crypto/)\n        *   [Equities](https://finance.yahoo.com/markets/prediction/equities/)\n        *   [Earnings](https://finance.yahoo.com/markets/prediction/earnings/)\n        *   [Tech](https://finance.yahoo.com/markets/prediction/tech/)\n        *   [Economy](https://finance.yahoo.com/markets/prediction/economy/)\n\n    *   [Private companies](https://finance.yahoo.com/markets/private-companies/highest-valuation/)\n\n        *   [52 week gainers](https://finance.yahoo.com/markets/private-companies/52-week-gainers/)\n        *   [Recently funded](https://finance.yahoo.com/markets/private-companies/recently-funded/)\n        *   [Most funded](https://finance.yahoo.com/markets/private-companies/most-funded/)\n\n    *   [Options](https://finance.yahoo.com/markets/options/most-active/)\n\n        *   [Day gainers](https://finance.yahoo.com/markets/options/gainers/)\n        *   [Day losers](https://finance.yahoo.com/markets/options/losers/)\n        *   [Highest open interest](https://finance.yahoo.com/markets/options/highest-open-interest/)\n        *   [Highest implied volatility](https://finance.yahoo.com/markets/options/highest-implied-volatility/)\n\n    *   [Sectors](https://finance.yahoo.com/sectors/)\n\n        *   [Technology](https://finance.yahoo.com/sectors/technology/)\n        *   [Financial services](https://finance.yahoo.com/sectors/financial-services/)\n        *   [Consumer cyclical](https://finance.yahoo.com/sectors/consumer-cyclical/)\n        *   [Communication services](https://finance.yahoo.com/sectors/communication-services/)\n        *   [Healthcare](https://finance.yahoo.com/sectors/healthcare/)\n        *   [Industrials](https://finance.yahoo.com/sectors/industrials/)\n        *   [Consumer defensive](https://finance.yahoo.com/sectors/consumer-defensive/)\n        *   [Energy](https://finance.yahoo.com/sectors/energy/)\n        *   [Basic materials](https://finance.yahoo.com/sectors/basic-materials/)\n        *   [Real estate](https://finance.yahoo.com/sectors/real-estate/)\n        *   [Utilities](https://finance.yahoo.com/sectors/utilities/)\n\n    *   [Treasury bonds](https://finance.yahoo.com/markets/bonds/)\n    *   [Futures](https://finance.yahoo.com/markets/commodities/)\n    *   [Currencies](https://finance.yahoo.com/markets/currencies/)\n    *   [World indices](https://finance.yahoo.com/markets/world-indices/)\n    *   [ETFs](https://finance.yahoo.com/markets/etfs/)\n\n*   [Research](https://finance.yahoo.com/research-hub/screener/)\n\n    *   [Stock picks](https://finance.yahoo.com/stock-picks)\n    *   [Screeners](https://finance.yahoo.com/research-hub/screener/)\n\n        *   [Stocks](https://finance.yahoo.com/research-hub/screener/equity/)\n        *   [Most shorted](https://finance.yahoo.com/research-hub/screener/most_shorted_stocks/)\n        *   [Most active penny stocks](https://finance.yahoo.com/research-hub/screener/most_active_penny_stocks/)\n        *   [Analyst strong buy](https://finance.yahoo.com/research-hub/screener/analyst_strong_buy_stocks/)\n\n    *   [Calendar](https://finance.yahoo.com/calendar/)\n\n        *   [Earnings](https://finance.yahoo.com/calendar/earnings/)\n        *   [Stock splits](https://finance.yahoo.com/calendar/splits/)\n        *   [IPOs](https://finance.yahoo.com/calendar/ipo/)\n        *   [Economic events](https://finance.yahoo.com/calendar/economic/)\n\n    *   [Stock comparison](https://finance.yahoo.com/compare/)\n\n        *   [NVDA vs INTC](https://finance.yahoo.com/compare?comps=NVDA,INTC)\n        *   [NVDA vs AMD](https://finance.yahoo.com/compare?comps=NVDA,AMD)\n        *   [GOOG vs AMZN](https://finance.yahoo.com/compare?comps=GOOG,AMZN)\n        *   [AAPL vs MSFT](https://finance.yahoo.com/compare?comps=AAPL,MSFT)\n        *   [TSLA vs RIVN](https://finance.yahoo.com/compare?comps=TSLA,RIVN)\n\n    *   [Currency converter](https://finance.yahoo.com/currency-converter/)\n    *   [Advanced charts](https://finance.yahoo.com/chart/%5EGSPC/)\n    *   [Investment ideas](https://finance.yahoo.com/about/plans/select-plan/investmentIdeas/?.done=%2Fresearch%2Ftrade-ideas%3Fncid%3Ddcm_306158753_490172245_127172993&ncid=dcm_306158753_490172245_127172993)\n    *   [Research reports](https://finance.yahoo.com/about/plans/select-plan/researchReports/?.done=%2Fresearch%3Fncid%3Ddcm_306158756_490172245_127172993&ncid=dcm_306158756_490172245_127172993)\n\n*   [Community](https://finance.yahoo.com/community/)\n*   [Personal Finance](https://finance.yahoo.com/personal-finance/)\n\n    *   [My Money](https://finance.yahoo.com/my-money/)\n    *   [Credit cards](https://finance.yahoo.com/personal-finance/credit-cards/)\n\n        *   [Compare Credit Cards](https://finance.yahoo.com/personal-finance/credit-cards/compare/)\n        *   [Best 0% APR cards](https://finance.yahoo.com/personal-finance/credit-cards/article/best-zero-percent-apr-credit-cards-202429925.html)\n        *   [Best balance transfer cards](https://finance.yahoo.com/personal-finance/credit-cards/article/best-balance-transfer-credit-cards-123841213.html)\n        *   [Best rewards cards](https://finance.yahoo.com/personal-finance/credit-cards/article/best-rewards-credit-cards-172941111.html)\n        *   [Best travel cards](https://finance.yahoo.com/personal-finance/credit-cards/article/best-travel-rewards-credit-card-172745542.html)\n\n    *   [Banking](https://finance.yahoo.com/personal-finance/banking/)\n\n        *   [Best CD rates](https://finance.yahoo.com/personal-finance/banking/article/best-cd-rates-201308688.html)\n        *   [Best high-yield savings accounts](https://finance.yahoo.com/personal-finance/banking/article/best-high-yield-savings-account-171334498.html)\n        *   [Best money market accounts](https://finance.yahoo.com/personal-finance/banking/article/4-percent-interest-money-market-accounts-160154289.html)\n        *   [Best free checking accounts](https://finance.yahoo.com/personal-finance/banking/article/best-free-checking-accounts-195709452.html)\n        *   [Best online banks](https://finance.yahoo.com/personal-finance/banking/article/best-online-banks-225003422.html)\n\n    *   [Mortgage](https://finance.yahoo.com/personal-finance/mortgages/)\n\n        *   [Best mortgage lenders](https://finance.yahoo.com/personal-finance/mortgages/article/best-mortgage-lenders-173044403.html)\n        *   [Lowest mortgage rates](https://finance.yahoo.com/personal-finance/mortgages/article/8-strategies-for-getting-the-lowest-mortgage-rate-possible-in-2026-224601956.html)\n        *   [Mortgage refinance](https://finance.yahoo.com/personal-finance/mortgages/article/refinance-mortgage-162831396.html)\n        *   [First time homebuyer](https://finance.yahoo.com/personal-finance/mortgages/article/first-time-home-buyer-195246478.html)\n        *   [Mortgage payment calculator](https://finance.yahoo.com/personal-finance/calculators/mortgage-payment-calculator/)\n        *   [Home affordability calculator](https://finance.yahoo.com/personal-finance/calculators/how-much-home-can-i-afford/)\n\n    *   [Insurance](https://finance.yahoo.com/personal-finance/insurance/)\n\n        *   [Find car insurance](https://finance.yahoo.com/personal-finance/insurance/article/cheap-car-insurance-152307402.html)\n        *   [Types of car insurance](https://finance.yahoo.com/personal-finance/insurance/article/types-of-car-insurance-175724082.html)\n        *   [Find life insurance](https://finance.yahoo.com/personal-finance/insurance/article/what-is-life-insurance-200844307.html)\n\n    *   [Taxes](https://finance.yahoo.com/personal-finance/taxes/)\n\n        *   [How to file](https://finance.yahoo.com/personal-finance/taxes/article/irs-direct-file-230748915.html)\n        *   [Tax brackets and rates](https://finance.yahoo.com/personal-finance/taxes/article/tax-brackets-165854746.html)\n        *   [Child tax credit](https://finance.yahoo.com/personal-finance/taxes/article/child-tax-credit-2023-170245284.html)\n        *   [Tax extension](https://finance.yahoo.com/personal-finance/taxes/article/tax-extension-220004592.html)\n        *   [Tax refund status](https://finance.yahoo.com/personal-finance/taxes/article/wheres-my-refund-223612874.html)\n\n    *   [Student loans](https://finance.yahoo.com/personal-finance/student-loans/)\n\n        *   [Federal vs. private](https://finance.yahoo.com/personal-finance/student-loans/article/are-federal-or-private-loans-better-175200294.html)\n        *   [How to apply](https://finance.yahoo.com/personal-finance/student-loans/article/how-to-apply-for-federal-student-loans-203505397.html)\n        *   [FAFSA 2026-27](https://finance.yahoo.com/personal-finance/student-loans/article/what-is-fafsa-173422253.html)\n        *   [Student loan assistance](https://finance.yahoo.com/personal-finance/student-loans/article/when-do-student-loans-resume-203115948.html)\n\n    *   [Personal loans](https://finance.yahoo.com/personal-finance/personal-loans/)\n\n        *   [Best personal loans](https://finance.yahoo.com/personal-finance/personal-loans/article/best-personal-loans-202034980.html)\n        *   [Improve credit score](https://finance.yahoo.com/personal-finance/banking/article/how-to-improve-credit-score-140045472.html)\n        *   [How to get approved](https://finance.yahoo.com/personal-finance/personal-loans/article/how-to-get-approved-for-personal-loan-173728303.html)\n\n*   [Videos](https://finance.yahoo.com/videos/)\n\n    *   [Latest](https://finance.yahoo.com/videos/latest/)\n    *   [Editor's picks](https://finance.yahoo.com/videos/editor-picks/)\n    *   [Trending stocks](https://finance.yahoo.com/videos/trending-stocks/)\n    *   [Investing insights](https://finance.yahoo.com/videos/investing-insights/)\n    *   [Live shows](https://finance.yahoo.com/videos/series/)\n\n        *   [Morning Brief](https://finance.yahoo.com/videos/series/morning-brief/)\n        *   [Opening Bid](https://finance.yahoo.com/videos/series/opening-bid/)\n        *   [Market Catalysts](https://finance.yahoo.com/videos/series/market-catalysts/)\n        *   [Market Domination](https://finance.yahoo.com/videos/series/market-domination/)\n        *   [Market Domination Overtime](https://finance.yahoo.com/videos/series/market-domination-overtime/)\n        *   [Asking for a Trend](https://finance.yahoo.com/videos/series/asking-for-a-trend/)\n\n    *   [Video podcasts](https://finance.yahoo.com/videos/series/)\n\n        *   [Stocks in Translation](https://finance.yahoo.com/videos/series/stocks-in-translation/)\n        *   [Trader Talk](https://finance.yahoo.com/videos/series/trader-talk/)\n        *   [Living Not So Fabulously](https://finance.yahoo.com/videos/series/living-fabulously/)\n        *   [The Big Idea](https://finance.yahoo.com/videos/series/big-idea/)\n        *   [Financial Freestyle](https://finance.yahoo.com/videos/series/financial-freestyle/)\n\n    *   [FA Corner](https://finance.yahoo.com/topic/fa-corner/)\n    *   [ETF Report](https://finance.yahoo.com/topic/etf-report/)\n    *   [Options Unlocked](https://finance.yahoo.com/topic/options-101/)\n\n*   [Watch Now](https://finance.yahoo.com/live/)\n\n### [Sports](https://sports.yahoo.com/)\n\n*   [Fantasy](https://sports.yahoo.com/fantasy/)\n\n    *   [News](https://sports.yahoo.com/fantasy/news/)\n    *   [Fantasy football](https://football.fantasysports.yahoo.com/)\n    *   [Best ball](https://bestball.fantasysports.yahoo.com/)\n    *   [Pro Pick 'Em](https://football.fantasysports.yahoo.com/pickem)\n    *   [College Pick 'Em](https://football.fantasysports.yahoo.com/college)\n    *   [Fantasy baseball](https://baseball.fantasysports.yahoo.com/)\n    *   [Fantasy hockey](https://hockey.fantasysports.yahoo.com/)\n    *   [Fantasy basketball](https://basketball.fantasysports.yahoo.com/)\n    *   [Download the app](https://sports.yahoo.com/fantasy/mobile/)\n\n*   [Daily fantasy](https://sports.yahoo.com/dailyfantasy/)\n*   [NFL](https://sports.yahoo.com/nfl/)\n\n    *   [News](https://sports.yahoo.com/nfl/news/)\n    *   [Scores and schedules](https://sports.yahoo.com/nfl/scoreboard/)\n    *   [Standings](https://sports.yahoo.com/nfl/standings/)\n    *   [Stats](https://sports.yahoo.com/nfl/stats/)\n    *   [Teams](https://sports.yahoo.com/nfl/teams/)\n    *   [Players](https://sports.yahoo.com/nfl/players/)\n    *   [Drafts](https://sports.yahoo.com/nfl/draft/)\n    *   [Injuries](https://sports.yahoo.com/nfl/injuries/)\n    *   [Odds](https://sports.yahoo.com/nfl/odds/)\n    *   [Super Bowl](https://sports.yahoo.com/nfl/topic/super-bowl/)\n    *   [GameChannel](https://sports.yahoo.com/nfl/gamechannel/)\n    *   [Videos](https://sports.yahoo.com/videos/nfl/)\n\n*   [NBA](https://sports.yahoo.com/nba/)\n\n    *   [News](https://sports.yahoo.com/nba/news/)\n    *   [Draft](https://sports.yahoo.com/nba/draft/)\n    *   [Scores and schedules](https://sports.yahoo.com/nba/scoreboard/)\n    *   [Standings](https://sports.yahoo.com/nba/standings/)\n    *   [Stats](https://sports.yahoo.com/nba/stats/)\n    *   [Teams](https://sports.yahoo.com/nba/teams/)\n    *   [Players](https://sports.yahoo.com/nba/players/)\n    *   [Injuries](https://sports.yahoo.com/nba/injuries/)\n    *   [Videos](https://sports.yahoo.com/videos/nba/)\n    *   [Odds](https://sports.yahoo.com/nba/odds/)\n    *   [Playoffs](https://sports.yahoo.com/nba/playoffs/)\n\n*   [MLB](https://sports.yahoo.com/mlb/)\n\n    *   [News](https://sports.yahoo.com/mlb/news/)\n    *   [Scores and schedules](https://sports.yahoo.com/mlb/scoreboard/)\n    *   [Standings](https://sports.yahoo.com/mlb/standings/)\n    *   [Stats](https://sports.yahoo.com/mlb/stats/)\n    *   [Teams](https://sports.yahoo.com/mlb/teams/)\n    *   [Players](https://sports.yahoo.com/mlb/players/)\n    *   [Odds](https://sports.yahoo.com/mlb/odds/)\n    *   [Videos](https://sports.yahoo.com/videos/mlb/)\n    *   [World Baseball Classic](https://sports.yahoo.com/mlb/world-baseball-classic/)\n\n*   [NHL](https://sports.yahoo.com/nhl/)\n\n    *   [News](https://sports.yahoo.com/nhl/news/)\n    *   [Scores and schedules](https://sports.yahoo.com/nhl/scoreboard/)\n    *   [Standings](https://sports.yahoo.com/nhl/standings/)\n    *   [Stats](https://sports.yahoo.com/nhl/stats/)\n    *   [Teams](https://sports.yahoo.com/nhl/teams/)\n    *   [Players](https://sports.yahoo.com/nhl/players/)\n    *   [Odds](https://sports.yahoo.com/nhl/odds/)\n    *   [Playoffs](https://sports.yahoo.com/nhl/stanley-cup-playoffs/)\n\n*   [College football](https://sports.yahoo.com/college-football/)\n\n    *   [News](https://sports.yahoo.com/college-football/news/)\n    *   [Scores and schedules](https://sports.yahoo.com/college-football/scoreboard/)\n    *   [Standings](https://sports.yahoo.com/college-football/standings/)\n    *   [Rankings](https://sports.yahoo.com/college-football/rankings/)\n    *   [Stats](https://sports.yahoo.com/college-football/stats/)\n    *   [Teams](https://sports.yahoo.com/college-football/teams/)\n\n*   [College basketball](https://sports.yahoo.com/college-basketball/)\n*   [Soccer](https://sports.yahoo.com/soccer/)\n\n    *   [News](https://sports.yahoo.com/soccer/news/)\n    *   [Scores and schedules](https://sports.yahoo.com/soccer/scoreboard/)\n    *   [Premier League](https://sports.yahoo.com/soccer/premier-league/)\n    *   [MLS](https://sports.yahoo.com/soccer/mls/)\n    *   [NWSL](https://sports.yahoo.com/soccer/nwsl/)\n    *   [Liga MX](https://sports.yahoo.com/soccer/ligamx-clausura/)\n    *   [CONCACAF League](https://sports.yahoo.com/soccer/concacaf-league/)\n    *   [Champions League](https://sports.yahoo.com/soccer/champions-league/)\n    *   [La Liga](https://sports.yahoo.com/soccer/la-liga/)\n    *   [Serie A](https://sports.yahoo.com/soccer/serie-a/)\n    *   [Bundesliga](https://sports.yahoo.com/soccer/bundesliga/)\n    *   [Ligue 1](https://sports.yahoo.com/soccer/ligue-1/)\n    *   [World Cup](https://sports.yahoo.com/soccer/world-cup/)\n\n*   [NFL Draft](https://sports.yahoo.com/nfl/draft/)\n*   [Yahoo Sports AM](https://sports.yahoo.com/newsletters/yahoo-sports-am/)\n*   [Show all](https://sports.yahoo.com/)\n\n    *   [WNBA](https://sports.yahoo.com/wnba/)\n    *   [Sportsbook](https://sports.yahoo.com/sportsbook/)\n    *   [NCAAF](https://sports.yahoo.com/college-football/)\n    *   [Tennis](https://sports.yahoo.com/tennis/)\n    *   [Golf](https://sports.yahoo.com/golf/)\n    *   [NASCAR](https://sports.yahoo.com/motorsports/nascar/)\n    *   [NCAAB](https://sports.yahoo.com/college-basketball/)\n    *   [NCAAW](https://sports.yahoo.com/college-womens-basketball/)\n    *   [Boxing](https://sports.yahoo.com/boxing/)\n    *   [USFL](https://sports.yahoo.com/usfl/)\n    *   [Cycling](https://sports.yahoo.com/cycling/)\n    *   [Motorsports](https://sports.yahoo.com/motorsports/)\n    *   [Olympics](https://sports.yahoo.com/olympics/beijing-2022/)\n    *   [Horse racing](https://sports.yahoo.com/horse-racing/)\n    *   [GameChannel](https://sports.yahoo.com/mlb/gamechannel/)\n    *   [Rivals](https://n.rivals.com/)\n    *   [Newsletters](https://sports.yahoo.com/newsletters/)\n    *   [Podcasts](https://sports.yahoo.com/podcasts/)\n    *   [Videos](https://sports.yahoo.com/videos/)\n    *   [RSS](https://sports.yahoo.com/syndication/)\n    *   [Jobs](https://sports.yahoo.com/jobs/)\n    *   [Help](https://help.yahoo.com/kb/sports-news)\n    *   [World Cup](https://sports.yahoo.com/soccer/world-cup/)\n    *   [More news](https://sports.yahoo.com/news/)\n\n### New on Yahoo\n\n*   [Creators](https://creators.yahoo.com/)\n*   [Tech](https://tech.yahoo.com/)\n\n    *   [AI](https://tech.yahoo.com/ai/)\n\n        *   [Apple Intelligence](https://tech.yahoo.com/ai/apple-intelligence/)\n        *   [ChatGPT](https://tech.yahoo.com/ai/chatgpt/)\n        *   [Claude](https://tech.yahoo.com/ai/claude/)\n        *   [Gemini](https://tech.yahoo.com/ai/gemini/)\n        *   [Meta](https://tech.yahoo.com/ai/meta-ai/)\n        *   [Microsoft Copilot](https://tech.yahoo.com/ai/copilot/)\n        *   [Perplexity](https://tech.yahoo.com/ai/perplexity-ai/)\n\n    *   [Audio](https://tech.yahoo.com/audio/)\n\n        *   [Audio deals](https://tech.yahoo.com/audio/deals/)\n\n    *   [Computing](https://tech.yahoo.com/computing/)\n    *   [Gaming](https://tech.yahoo.com/gaming/)\n\n        *   [Gaming deals](https://tech.yahoo.com/gaming/deals/)\n        *   [Nintendo](https://tech.yahoo.com/gaming/nintendo/)\n        *   [PC](https://tech.yahoo.com/gaming/pc/)\n        *   [PlayStation](https://tech.yahoo.com/gaming/playstation/)\n        *   [Xbox](https://tech.yahoo.com/gaming/xbox/)\n\n    *   [Home entertainment](https://tech.yahoo.com/home-entertainment/)\n\n        *   [TVs](https://tech.yahoo.com/home-entertainment/tvs/)\n\n    *   [Phones](https://tech.yahoo.com/phones/)\n    *   [Puzzle hints](https://tech.yahoo.com/puzzles/)\n\n        *   [Connections](https://tech.yahoo.com/puzzles/connections/)\n        *   [Quordle](https://tech.yahoo.com/puzzles/quordle/)\n        *   [Strands](https://tech.yahoo.com/puzzles/strands/)\n        *   [Wordle](https://tech.yahoo.com/puzzles/wordle/)\n\n    *   [Science](https://tech.yahoo.com/science/)\n\n        *   [Space](https://tech.yahoo.com/science/space/)\n\n    *   [Streaming](https://tech.yahoo.com/streaming/)\n\n        *   [Stream Super Bowl LX](https://tech.yahoo.com/streaming/article/how-to-watch-the-2026-super-bowl-seahawks-vs-patriots-tv-channel-streaming-info-start-time-and-more-201636299.html)\n        *   [Streaming reviews](https://tech.yahoo.com/streaming/reviews/)\n        *   [Streaming deals](https://tech.yahoo.com/streaming/deals/)\n\n    *   [Tech News](https://tech.yahoo.com/news/)\n    *   [VPN](https://tech.yahoo.com/vpn/)\n\n        *   [VPN deals](https://tech.yahoo.com/vpn/deals/)\n\n    *   [Deals](https://tech.yahoo.com/deals/)\n    *   [More](https://finance.yahoo.com/news/3-warning-signs-stock-market-124500662.html#)\n\n        *   [Apps](https://tech.yahoo.com/apps/)\n        *   [AR and VR](https://tech.yahoo.com/ar-vr/)\n        *   [Business](https://tech.yahoo.com/business/)\n        *   [Cameras](https://tech.yahoo.com/cameras/)\n        *   [Cybersecurity](https://tech.yahoo.com/cybersecurity/)\n        *   [Entertainment](https://tech.yahoo.com/entertainment/)\n        *   [General](https://tech.yahoo.com/general/)\n        *   [Reviews and guides](https://tech.yahoo.com/reviews-and-guides/)\n        *   [Smart home](https://tech.yahoo.com/home/)\n        *   [Social media](https://tech.yahoo.com/social-media/)\n        *   [Transportation](https://tech.yahoo.com/transportation/)\n        *   [Wearables](https://tech.yahoo.com/wearables/)\n\n*   [Local](https://local.yahoo.com/)\n\n    *   [Moving](https://local.yahoo.com/movers/)\n    *   [Roofing](https://local.yahoo.com/roofing/)\n    *   [Painting](https://local.yahoo.com/painting/)\n    *   [Plumbing](https://local.yahoo.com/plumbing/)\n    *   [Awards](https://local.yahoo.com/awards/)\n\n*   [Terms](https://guce.yahoo.com/terms?locale=en-US)\n*   [Privacy](https://guce.yahoo.com/privacy-policy?locale=en-US)\n*   [Privacy Dashboard](https://guce.yahoo.com/privacy-dashboard?locale=en-US)\n*   [Feedback](https://yahoo.uservoice.com/forums/952723-finance-b3)\n\n © 2026  All rights reserved.\n\n[About our ads](https://legal.yahoo.com/us/en/yahoo/privacy/adinfo/index.html)[Advertising](https://www.adtech.yahooinc.com/advertising/solutions)[Careers](https://www.yahooinc.com/careers/)\n\nYahoo Finance\n=============\n\n[Yahoo Finance](https://finance.yahoo.com/)\n\nSearch query \n\nTip: Try a valid symbol or a specific company name for relevant results\n\n### Trending Tickers\n\n*   ![Image 2: BTC-USD-logo](https://s2.coinmarketcap.com/static/img/coins/64x64/1.png) BTC-USD 66726.20 (-10.22%)  \n*   ![Image 3: GOOG-logo](https://s.yimg.com/lb/brands/150x150_google.png) GOOG 317.69 (-4.69%)  \n*   G GOOGL 316.31 (-5.02%)  \n*   ![Image 4: ETH-USD-logo](https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png) ETH-USD 1932.15 (-10.68%)  \n*   N NIO 4.6433 (+4.58%)  \n\nSelect edition\n*   [US English](https://www.yahoo.com/?p=dnr)\n*   [US y LATAM Español](https://espanol.yahoo.com/?p=dnr)\n*   [Australia English](https://au.yahoo.com/?p=dnr)\n*   [Canada English](https://ca.yahoo.com/?p=dnr)\n*   [Canada Français](https://qc.yahoo.com/?p=dnr)\n*   [Deutschland Deutsch](https://de.yahoo.com/?p=dnr)\n*   [France Français](https://fr.yahoo.com/?p=dnr)\n*   [香港 繁中](https://hk.yahoo.com/?p=dnr)\n*   [Malaysia English](https://malaysia.yahoo.com/?p=dnr)\n*   [New Zealand English](https://nz.yahoo.com/?p=dnr)\n*   [Singapore English](https://sg.yahoo.com/?p=dnr)\n*   [台灣 繁中](https://tw.yahoo.com/?p=dnr)\n*   [UK English](https://uk.yahoo.com/?p=dnr)\n\n*   [News](https://www.yahoo.com/)\n*   [Finance](https://finance.yahoo.com/)\n*   [Sports](https://sports.yahoo.com/)\n*   More\n\n    *   [News](https://www.yahoo.com/)\n        *   [Today's news](https://www.yahoo.com/news/)\n        *   [US](https://www.yahoo.com/news/us/)\n        *   [Politics](https://www.yahoo.com/news/politics/)\n        *   [2025 Election](https://www.yahoo.com/events/elections/)\n        *   [World](https://www.yahoo.com/news/world/)\n        *   [Weather](https://weather.yahoo.com/)\n        *   [Climate change](https://www.yahoo.com/issues/climate-change/)\n        *   [Health](https://health.yahoo.com/)\n        *   [Science](https://www.yahoo.com/news/science/)\n        *   [Originals](https://www.yahoo.com/guides/originals/)\n        *   [Newsletters](https://news.yahoo.com/newsletters/)\n        *   [Games](https://www.yahoo.com/games)\n\n    *   [Life](https://www.yahoo.com/lifestyle/)\n        *   [Health](https://health.yahoo.com/)\n        *   [Parenting](https://www.yahoo.com/lifestyle/family-relationships/)\n        *   [Style and beauty](https://www.yahoo.com/lifestyle/style-beauty/)\n        *   [Horoscopes](https://www.yahoo.com/lifestyle/horoscope/)\n        *   [Shopping](https://shopping.yahoo.com/)\n        *   [Food](https://www.yahoo.com/lifestyle/food-drink/)\n        *   [Travel](https://travel.yahoo.com/)\n        *   [Autos](https://autos.yahoo.com/)\n        *   [Gift ideas](https://shopping.yahoo.com/gift-ideas/)\n        *   [Buying guides](https://shopping.yahoo.com/guides/)\n        *   [Valentine's Day gifts](https://shopping.yahoo.com/gift-ideas/article/the-best-valentines-day-gifts-to-shop-for-all-the-loves-of-your-life-213456733.html)\n\n    *   [Entertainment](https://www.yahoo.com/entertainment/)\n        *   [Celebrity](https://www.yahoo.com/entertainment/celebrity/)\n        *   [TV](https://www.yahoo.com/entertainment/tv/)\n        *   [Movies](https://www.yahoo.com/entertainment/movies/)\n        *   [Music](https://www.yahoo.com/entertainment/music/)\n        *   [How to Watch](https://www.yahoo.com/guides/how-to-watch/)\n        *   [Interviews](https://www.yahoo.com/guides/interviews/)\n        *   [Videos](https://www.yahoo.com/guides/videos/)\n\n    *   [Finance](https://finance.yahoo.com/)\n        *   [My portfolio](https://finance.yahoo.com/portfolios/)\n        *   [Watchlists](https://finance.yahoo.com/watchlists/)\n        *   [Markets](https://finance.yahoo.com/calendar/)\n        *   [News](https://finance.yahoo.com/news/)\n        *   [Videos](https://finance.yahoo.com/videos/)\n        *   [Screeners](https://finance.yahoo.com/screener/)\n        *   [Personal finance](https://finance.yahoo.com/personal-finance/)\n        *   [Crypto](https://finance.yahoo.com/crypto/)\n        *   [Sectors](https://finance.yahoo.com/sectors/)\n        *   [Industries](https://finance.yahoo.com/screener/predefined/ms_basic_materials/)\n\n    *   [Sports](https://sports.yahoo.com/)\n        *   [Fantasy](https://sports.yahoo.com/fantasy/)\n        *   [Daily fantasy](https://sports.yahoo.com/dailyfantasy/)\n        *   [NFL](https://sports.yahoo.com/nfl/)\n        *   [NBA](https://sports.yahoo.com/nba/)\n        *   [MLB](https://sports.yahoo.com/mlb/)\n        *   [NHL](https://sports.yahoo.com/nhl/)\n        *   [College football](https://sports.yahoo.com/college-football/)\n        *   [College basketball](https://sports.yahoo.com/college-basketball/)\n        *   [Soccer](https://sports.yahoo.com/soccer/)\n        *   [NFL Draft](https://sports.yahoo.com/nfl/draft/)\n        *   [Yahoo Sports AM](https://sports.yahoo.com/newsletters/yahoo-sports-am/)\n        *   [Show all](https://sports.yahoo.com/)\n\n    *           *   New on Yahoo \n            *   [Creators](https://creators.yahoo.com/)\n            *   [Tech](https://tech.yahoo.com/)\n            *   [Local](https://local.yahoo.com/)\n\n        *   [Selected edition](https://www.yahoo.com/everything/world/)US English\n\n- [x] \n\nOops, something went wrong\n\nNotifications\n\n    \n\nToday \n\n    1.   [News • 4 minutes ago Job openings unexpectedly plummeted in December, hitting the lowest level since 2020. It's another sign of labor market weakness.](https://finance.yahoo.com/news/job-openings-sink-in-december-to-lowest-level-since-2020-151605057.html?.tsrc=fin-notif)\n    2.   [Breaking News • 59 minutes ago The S&P 500 and Nasdaq sank at the open, with Wall Street poised to build on a tech-fueled sell-off](https://finance.yahoo.com/news/live/stock-market-today-sp-500-nasdaq-sink-adding-to-tech-sell-off-after-jobs-data-as-google-slides-amazon-looms-143533634.html?.tsrc=fin-notif)\n    3.   [Breaking News • 2 hours ago US companies announced the most job cuts for any January since 2009, a new report found](https://finance.yahoo.com/news/last-month-was-the-worst-january-for-layoff-plans-since-2009-challenger-131244531.html?.tsrc=fin-notif)\n    4.   [News • 14 hours ago The cryptocurrency's latest fall came as Treasury Secretary Scott Bessent said the government can't tell banks to bail out the industry.](https://finance.yahoo.com/news/bitcoin-sinks-after-treasury-secretary-bessent-says-us-government-cant-tell-banks-to-bail-out-crypto-195504406.html?.tsrc=fin-notif)\n    5.   [News • 15 hours ago The AI frenzy isn't limited to tech's biggest titans. Meet the companies seeing 1,000% stock booms.](https://finance.yahoo.com/news/memory-company-stocks-are-seeing-1000-gains-from-the-ai-boom-192550307.html?.tsrc=fin-notif)\n    6.   [News • 16 hours ago Anthropic and OpenAI are taking their battle to the Super Bowl](https://finance.yahoo.com/news/anthropic-doubles-down-on-ad-free-model-takes-shot-at-openai-in-upcoming-super-bowl-ad-170004629.html?.tsrc=fin-notif)\n    7.   [Breaking News • 18 hours ago Alphabet's 2026 spending forecast soared past Wall Street expectations as the company goes all-in on AI. Shares fell in late trading.](https://finance.yahoo.com/news/alphabet-2026-spending-forecast-soars-past-wall-street-expectations-as-company-goes-all-in-on-ai-195254822.html?.tsrc=fin-notif)\n    8.   [Breaking News • 18 hours ago The Nasdaq led stocks lower as Wall Street's software-fueled tech slide continued for a second day](https://finance.yahoo.com/news/live/stock-market-today-sp-500-nasdaq-fall-for-2nd-day-as-tech-slides-on-ai-worries-with-google-earnings-ahead-210024017.html?.tsrc=fin-notif)\n    9.   [Breaking News • 21 hours ago The Nasdaq led losses, sinking over 2%, as investors continued to flee megacap tech and software stocks. Follow our live updates.](https://finance.yahoo.com/news/live/stock-market-today-sp-500-nasdaq-sink-as-ai-worries-fuel-return-to-tech-sell-off-ahead-of-google-earnings-160743451.html?.tsrc=fin-notif)\n    10.   [Breaking News • 23 hours ago The Nasdaq fell over 1%, continuing a tech-fueled slide as Wall Street's rotation trade gathered steam.](https://finance.yahoo.com/news/live/stock-market-today-dow-jumps-sp-500-nasdaq-fall-with-ai-worries-in-focus-ahead-of-google-earnings-160743202.html?.tsrc=fin-notif)\n    11.   [Breaking News • yesterday Stocks on Wall Street open mixed after tech-led losses, with Google earnings on deck](https://finance.yahoo.com/news/live/stock-market-today-dow-rallies-sp-500-and-nasdaq-fall-after-tech-led-losses-with-google-earnings-on-deck-234546647.html?.tsrc=fin-notif)\n    12.   [Breaking News • yesterday In what looks to be the only piece of jobs data investors receive this week, private payroll growth missed expectations.](https://finance.yahoo.com/news/private-payroll-growth-in-january-misses-expectations-as-market-awaits-official-jobs-data-133441723.html?.tsrc=fin-notif)\n    13.   [Morning Brief • yesterday The SpaceX mega merger boosts the Musk trade](https://finance.yahoo.com/news/the-spacex-mega-merger-boosts-the-musk-trade-110026592.html?.tsrc=fin-notif)\n    14.   [News • yesterday Google's parent company is set to report Wednesday in a big test of the stock's AI-fueled rally. Here's what to expect](https://finance.yahoo.com/news/alphabet-set-to-report-q4-earnings-in-test-of-stocks-rally-amid-googles-ai-wins-195254201.html?.tsrc=fin-notif)\n    15.   [News • yesterday Consumer Reports' top 10 best new cars for 2026 all include one important feature](https://finance.yahoo.com/news/consumer-reports-2026-top-10-cars-all-have-one-important-feature-155934138.html?.tsrc=fin-notif)\n    16.   [News • yesterday The 'SaaSpocalypse' is here: Growing fears that AI will affect different industries are prompting investors to dump software stocks. (Bloomberg)](https://finance.yahoo.com/news/traders-dump-software-stocks-ai-115502147.html?.tsrc=fin-notif)\n    17.   [News • yesterday AMD's earnings and outlook beat estimates. But shares fell amid a growing malaise around the AI trade.](https://finance.yahoo.com/news/amd-posts-better-than-anticipated-q4-earnings-and-q1-outlook-but-stock-falls-204747243.html?.tsrc=fin-notif)\n    18.   [Breaking News • yesterday The Nasdaq led stock declines as tech faltered amid a continued plunge in software stocks](https://finance.yahoo.com/news/live/stock-market-today-dow-nasdaq-sp-500-sink-as-tech-falters-amid-flood-of-earnings-192429486.html?.tsrc=fin-notif)\n    19.   [Breaking News • yesterday House passes bill to end government shutdown, with Trump expected to sign the measure into law](https://finance.yahoo.com/news/house-passes-funding-deal-with-only-trumps-signature-needed-to-end-government-shutdown-150730075.html?.tsrc=fin-notif)\n    20.   [Breaking News • yesterday The Nasdaq led losses, falling over 1.5% as megacap tech names tumbled and software stocks got hit hard.](https://finance.yahoo.com/news/live/stock-market-today-nasdaq-sp-500-slide-as-investors-digest-flood-of-tech-earnings-government-shutdown-173327941.html?.tsrc=fin-notif)\n    21.   [Breaking News • 2 days ago Stocks ticked higher at the open, as Palantir's surge lifted tech. The precious metals trade rebounded with big jumps from gold and silver.](https://finance.yahoo.com/news/live/stock-market-today-dow-sp-500-nasdaq-edge-higher-as-palantir-lifts-tech-hopes-earnings-flood-in-143614819.html?.tsrc=fin-notif)\n    22.   [Breaking News • 2 days ago Disney names parks leader Josh D'Amaro as next CEO, succeeding Bob Iger](https://finance.yahoo.com/news/disney-names-parks-leader-josh-damaro-as-next-ceo-succeeding-bob-iger-133752601.html?.tsrc=fin-notif)\n    23.   [Morning Brief • 2 days ago Disney's Iger leaves both gifts and burdens for its next CEO](https://finance.yahoo.com/news/disneys-iger-leaves-both-gifts-and-burdens-for-its-next-ceo-110020508.html?.tsrc=fin-notif)\n    24.   [News • 2 days ago What an extended standoff over Kevin Warsh's appointment as Fed Chair in the Senate could look like](https://finance.yahoo.com/news/messy-and-unclear-what-an-extended-standoff-over-kevin-warsh-in-the-senate-could-look-like-194500092.html?.tsrc=fin-notif)\n    25.   [News • 2 days ago All eyes are on the precious metals trade after what one analyst said was a 'disturbing' sell-off in gold and silver.](https://finance.yahoo.com/news/gold-silver-losses-ease-after-disturbing-safe-haven-sell-off-165535426.html?.tsrc=fin-notif)\n    26.   [Breaking News • 2 days ago Elon Musk said SpaceX would merge with xAI, in a deal that combines two of his biggest private companies.](https://finance.yahoo.com/news/musk-confirms-spacex-merger-with-xai-ahead-of-ipo-220616335.html?.tsrc=fin-notif)\n    27.   [News • 2 days ago The company beat earnings estimates, thanks to strong sales to US businesses. CEO Alex Karp told us that Palantir is 'a different species of company.'](https://finance.yahoo.com/news/palantir-q4-earnings-beat-wall-street-estimates-on-strong-sales-to-us-businesses-160215027.html?.tsrc=fin-notif)\n    28.   [Breaking News • 2 days ago The Dow rose over 500 points as stocks rose to kick off February, shaking off continued volatility in precious metals](https://finance.yahoo.com/news/live/stock-market-today-dow-sp-500-nasdaq-jump-to-kick-off-february-as-gold-silver-bitcoin-remain-volatile-210457932.html?.tsrc=fin-notif)\n    29.   [News • 2 days ago January's jobs report will be delayed by the government shutdown, labor department says](https://finance.yahoo.com/news/januarys-jobs-report-to-be-delayed-by-government-shutdown-175359822.html?.tsrc=fin-notif)\n    30.   [Breaking News • 2 days ago Trump says US, India agree to deal as Modi pledges to stop buying Russian oil](https://finance.yahoo.com/news/live/trump-tariffs-live-updates-trump-says-us-india-agree-to-deal-as-modi-pledges-to-stop-buying-russian-oil-220551745.html?.tsrc=fin-notif)\n    31.   [News • 2 days ago Tesla shares dropped early Monday after news of Ford's reported partnership talks with Chinese automaker Xiaomi](https://finance.yahoo.com/news/tesla-us-automakers-under-threat-by-chinese-joint-ventures-161621957.html?.tsrc=fin-notif)\n    32.   [Breaking News • 3 days ago Dow, S&P 500 waver, but Nasdaq slips as AI doubts swirl](https://finance.yahoo.com/news/live/stock-market-today-sp-500-nasdaq-fall-as-ai-doubts-swirl-precious-metals-whipsaw-002413401.html?.tsrc=fin-notif)\n    33.   [News • 3 days ago 'The haves and the have nots': Wall Street sees divide in tech stock performance after earnings reports](https://finance.yahoo.com/news/the-haves-and-the-have-nots-wall-street-sees-divide-in-tech-stock-performance-after-earnings-reports-153043282.html?.tsrc=fin-notif)\n    34.   [News • 3 days ago 6 smart moves for retirees to make now to save on next year's taxes](https://finance.yahoo.com/news/6-smart-moves-for-retirees-to-make-now-to-save-on-next-years-taxes-153051473.html?.tsrc=fin-notif)\n    35.   [News • 3 days ago Silver price volatility: What to know and how to invest](https://finance.yahoo.com/personal-finance/investing/article/silver-price-volatility-what-to-know-and-how-to-invest-152825562.html?.tsrc=fin-notif)\n    36.   [News • 3 days ago Crypto czar David Sacks will host banking and crypto leaders in DC on Monday for negotiations on the landmark Clarity Act](https://finance.yahoo.com/news/wall-street-banks-crypto-leaders-set-to-meet-in-washington-with-landmark-clarity-act-hanging-in-the-balance-143008155.html?.tsrc=fin-notif)\n    37.   [News • 4 days ago Starbucks CEO Brian Niccol says the rise of GLP-1 weight loss drugs is behind the company's protein push.](https://finance.yahoo.com/news/starbucks-ceo-brian-niccol-says-rise-of-glp-1s-is-behind-companys-protein-push-173041742.html?.tsrc=fin-notif)\n    38.   [News • 4 days ago Bitcoin’s break below $80,000 signals new crisis of confidence (Bloomberg)](https://finance.yahoo.com/news/bitcoin-break-below-80-000-061355911.html?.tsrc=fin-notif)\n    39.   [News • 4 days ago January jobs data, Alphabet and Amazon earnings, more discussion of Warsh's role at the Fed: What to watch this week](https://finance.yahoo.com/news/january-jobs-data-alphabet-and-amazon-earnings-more-warsh-fallout-what-to-watch-this-week-124723942.html?.tsrc=fin-notif)\n    40.   [News • 4 days ago Minivan sales surge 21% in 2025 as millennial dads lead demand for cars offering the 'best bang for your buck'](https://finance.yahoo.com/news/minivan-sales-surge-21-in-2025-as-millennial-dads-lead-demand-for-cars-offering-the-best-bang-for-your-buck-143022892.html?.tsrc=fin-notif)\n    41.   [News • 4 days ago Trapped in subscriptions? Congress ramps up push for 'click-to-cancel' rule.](https://finance.yahoo.com/personal-finance/banking/article/trapped-in-subscriptions-congress-ramps-up-push-for-click-to-cancel-rule-153540252.html?.tsrc=fin-notif)\n    42.   [News • 4 days ago Cold weather and AI aren't the only culprits behind skyrocketing utility bills](https://finance.yahoo.com/news/why-your-utility-bills-are-out-of-control-its-not-just-the-arctic-blast-or-ai-100008895.html?.tsrc=fin-notif)\n    43.   [News • 4 days ago CEO Tim Cook said he expects the impact of a global memory chip shortage to hit Apple in the current quarter and beyond.](https://finance.yahoo.com/news/apple-faces-iphone-pricing-challenge-supply-crunch-as-ai-demand-deepens-global-memory-chip-shortage-163018393.html?.tsrc=fin-notif)\n    44.   [News • 5 days ago The condo market is in a deep slump. But sales and price growth showed signs of life in December.](https://finance.yahoo.com/news/the-condo-market-is-in-a-deep-slump-but-is-the-bottom-near-130056174.html?.tsrc=fin-notif)\n    45.   [News • 5 days ago 3 questions about Trump's nominee to lead the Fed](https://finance.yahoo.com/news/3-questions-about-trumps-nominee-to-lead-the-fed-110007196.html?.tsrc=fin-notif)\n    46.   [News • 5 days ago Nvidia's plan to invest up to $100 billion in OpenAI has stalled, WSJ reports (Reuters)](https://finance.yahoo.com/news/nvidias-plan-invest-100-billion-235951874.html?.tsrc=fin-notif)\n    47.   [Breaking News • 5 days ago The Senate has passed a funding deal but a partial government shutdown is on tap for the weekend.](https://finance.yahoo.com/news/senate-passes-funding-deal-but-a-partial-government-shutdown-is-on-tap-for-this-weekend-140109435.html?.tsrc=fin-notif)\n    48.   [News • 5 days ago Big Tech thinks smart glasses will be the first major piece of AI hardware](https://finance.yahoo.com/news/big-tech-thinks-smart-glasses-will-be-the-first-major-piece-of-ai-hardware-105218224.html?.tsrc=fin-notif)\n    49.   [News • 5 days ago Why software stocks are getting crushed as AI casts a 'shadow of uncertainty' over the sector](https://finance.yahoo.com/news/why-software-stocks-are-getting-crushed-as-ai-casts-shadow-of-uncertainty-over-sector-160011783.html?.tsrc=fin-notif)\n    50.   [News • 5 days ago Here's what the appointment of Kevin Warsh to the Fed could mean for interest rates this year](https://finance.yahoo.com/news/heres-what-the-appointment-of-warsh-to-the-fed-could-mean-for-interest-rates-this-year-175052674.html?.tsrc=fin-notif)\n\n[View all notifications](https://finance.yahoo.com/news/3-warning-signs-stock-market-124500662.html)\n\n[Mail](https://mail.yahoo.com/)\n\n[Sign in](https://login.yahoo.com/?.lang=en-US&src=finance&.done=https%3A%2F%2Ffinance.yahoo.com%2Fnews%2F3-warning-signs-stock-market-124500662.html&pspid=1183300100&activity=ybar-signin)\n\n1.   [My Portfolio](https://finance.yahoo.com/portfolios/)\n\n2.   [News](https://finance.yahoo.com/news/)\n    1.   [Latest](https://finance.yahoo.com/topic/latest-news/)\n    2.   [Originals](https://finance.yahoo.com/topic/yahoo-finance-originals/)\n    3.   [Premium news](https://finance.yahoo.com/topic/premium-news) \n    4.   [Newsletters](https://finance.yahoo.com/news/sign-up-for-yahoo-finances-morning-brief-174158888.html/)\n    5.   [Stock market](https://finance.yahoo.com/topic/stock-market-news/)\n    6.   [Crypto](https://finance.yahoo.com/topic/crypto/)\n    7.   [Earnings](https://finance.yahoo.com/topic/earnings/)\n    8.   [Tariffs](https://finance.yahoo.com/topic/tariffs/)\n    9.   [Tax Insights via H&R Block](https://finance.yahoo.com/topic/hrb-2026/)\n    10.   More Topics \n        1.   [Economies](https://finance.yahoo.com/topic/economic-news/)\n        2.   [Tech](https://finance.yahoo.com/topic/tech/)\n        3.   [Housing](https://finance.yahoo.com/topic/housing-market/)\n\n3.   [Markets](https://finance.yahoo.com/markets/)\n    1.   [Stocks](https://finance.yahoo.com/markets/stocks/) \n        1.   [Most active](https://finance.yahoo.com/markets/stocks/most-active/)\n        2.   [Day gainers](https://finance.yahoo.com/markets/stocks/gainers/)\n        3.   [Day losers](https://finance.yahoo.com/markets/stocks/losers/)\n        4.   [Trending](https://finance.yahoo.com/markets/stocks/trending/)\n        5.   [Highest dividend](https://finance.yahoo.com/markets/stocks/highest-dividend/)\n        6.   [Small cap](https://finance.yahoo.com/markets/stocks/small-cap-stocks/)\n        7.   [Large cap](https://finance.yahoo.com/markets/stocks/large-cap-stocks/)\n        8.   [Most expensive](https://finance.yahoo.com/markets/stocks/most-expensive-stocks/)\n        9.   [Highest beta](https://finance.yahoo.com/markets/stocks/highest-beta-stocks/)\n        10.   [Pink sheet](https://finance.yahoo.com/markets/stocks/pink-sheet-stocks/)\n        11.   [Unusual volume](https://finance.yahoo.com/markets/stocks/unusual-volume-stocks/)\n\n    2.   [Crypto](https://finance.yahoo.com/markets/crypto/all/) \n        1.   [Most active](https://finance.yahoo.com/markets/crypto/most-active/)\n        2.   [Day gainers](https://finance.yahoo.com/markets/crypto/gainers/)\n        3.   [Day losers](https://finance.yahoo.com/markets/crypto/losers/)\n\n    3.   [Prediction markets NEW](https://finance.yahoo.com/markets/prediction/trending/) \n        1.   [Finance](https://finance.yahoo.com/markets/prediction/finance/)\n        2.   [Crypto](https://finance.yahoo.com/markets/prediction/crypto/)\n        3.   [Equities](https://finance.yahoo.com/markets/prediction/equities/)\n        4.   [Earnings](https://finance.yahoo.com/markets/prediction/earnings/)\n        5.   [Tech](https://finance.yahoo.com/markets/prediction/tech/)\n        6.   [Economy](https://finance.yahoo.com/markets/prediction/economy/)\n\n    4.   [Private companies](https://finance.yahoo.com/markets/private-companies/highest-valuation/) \n        1.   [52 week gainers](https://finance.yahoo.com/markets/private-companies/52-week-gainers/)\n        2.   [Recently funded](https://finance.yahoo.com/markets/private-companies/recently-funded/)\n        3.   [Most funded](https://finance.yahoo.com/markets/private-companies/most-funded/)\n\n    5.   [Options](https://finance.yahoo.com/markets/options/most-active/) \n        1.   [Day gainers](https://finance.yahoo.com/markets/options/gainers/)\n        2.   [Day losers](https://finance.yahoo.com/markets/options/losers/)\n        3.   [Highest open interest](https://finance.yahoo.com/markets/options/highest-open-interest/)\n        4.   [Highest implied volatility](https://finance.yahoo.com/markets/options/highest-implied-volatility/)\n\n    6.   [Sectors](https://finance.yahoo.com/sectors/) \n        1.   [Technology](https://finance.yahoo.com/sectors/technology/)\n        2.   [Financial services](https://finance.yahoo.com/sectors/financial-services/)\n        3.   [Consumer cyclical](https://finance.yahoo.com/sectors/consumer-cyclical/)\n        4.   [Communication services](https://finance.yahoo.com/sectors/communication-services/)\n        5.   [Healthcare](https://finance.yahoo.com/sectors/healthcare/)\n        6.   [Industrials](https://finance.yahoo.com/sectors/industrials/)\n        7.   [Consumer defensive](https://finance.yahoo.com/sectors/consumer-defensive/)\n        8.   [Energy](https://finance.yahoo.com/sectors/energy/)\n        9.   [Basic materials](https://finance.yahoo.com/sectors/basic-materials/)\n        10.   [Real estate](https://finance.yahoo.com/sectors/real-estate/)\n        11.   [Utilities](https://finance.yahoo.com/sectors/utilities/)\n\n    7.   [Treasury bonds](https://finance.yahoo.com/markets/bonds/)\n    8.   [Futures](https://finance.yahoo.com/markets/commodities/)\n    9.   [Currencies](https://finance.yahoo.com/markets/currencies/)\n    10.   [World indices](https://finance.yahoo.com/markets/world-indices/)\n    11.   [ETFs](https://finance.yahoo.com/markets/etfs/)\n\n4.   [Research](https://finance.yahoo.com/research-hub/screener/)\n    1.   [Stock picks](https://finance.yahoo.com/stock-picks) \n    2.   [Screeners](https://finance.yahoo.com/research-hub/screener/) \n        1.   [Stocks](https://finance.yahoo.com/research-hub/screener/equity/)\n        2.   [Most shorted](https://finance.yahoo.com/research-hub/screener/most_shorted_stocks/)\n        3.   [Most active penny stocks](https://finance.yahoo.com/research-hub/screener/most_active_penny_stocks/)\n        4.   [Analyst strong buy](https://finance.yahoo.com/research-hub/screener/analyst_strong_buy_stocks/)\n\n    3.   [Calendar](https://finance.yahoo.com/calendar/) \n        1.   [Earnings](https://finance.yahoo.com/calendar/earnings/)\n        2.   [Stock splits](https://finance.yahoo.com/calendar/splits/)\n        3.   [IPOs](https://finance.yahoo.com/calendar/ipo/)\n        4.   [Economic events](https://finance.yahoo.com/calendar/economic/)\n\n    4.   [Stock comparison](https://finance.yahoo.com/compare/) \n        1.   [NVDA vs INTC](https://finance.yahoo.com/compare?comps=NVDA,INTC)\n        2.   [NVDA vs AMD](https://finance.yahoo.com/compare?comps=NVDA,AMD)\n        3.   [GOOG vs AMZN](https://finance.yahoo.com/compare?comps=GOOG,AMZN)\n        4.   [AAPL vs MSFT](https://finance.yahoo.com/compare?comps=AAPL,MSFT)\n        5.   [TSLA vs RIVN](https://finance.yahoo.com/compare?comps=TSLA,RIVN)\n\n    5.   [Currency converter](https://finance.yahoo.com/currency-converter/)\n    6.   [Advanced charts](https://finance.yahoo.com/chart/%5EGSPC/)\n    7.   [Investment ideas](https://finance.yahoo.com/about/plans/select-plan/investmentIdeas/?.done=%2Fresearch%2Ftrade-ideas%3Fncid%3Ddcm_306158753_490172245_127172993&ncid=dcm_306158753_490172245_127172993) \n    8.   [Research reports](https://finance.yahoo.com/about/plans/select-plan/researchReports/?.done=%2Fresearch%3Fncid%3Ddcm_306158756_490172245_127172993&ncid=dcm_306158756_490172245_127172993) \n\n5.   [Community](https://finance.yahoo.com/community/)\n\n6.   [Personal Finance](https://finance.yahoo.com/personal-finance/)\n    1.   [My Money BETA](https://finance.yahoo.com/my-money/)\n    2.   [Credit cards](https://finance.yahoo.com/personal-finance/credit-cards/) \n        1.   [Compare Credit Cards](https://finance.yahoo.com/personal-finance/credit-cards/compare/)\n        2.   [Best 0% APR cards](https://finance.yahoo.com/personal-finance/credit-cards/article/best-zero-percent-apr-credit-cards-202429925.html)\n        3.   [Best balance transfer cards](https://finance.yahoo.com/personal-finance/credit-cards/article/best-balance-transfer-credit-cards-123841213.html)\n        4.   [Best rewards cards](https://finance.yahoo.com/personal-finance/credit-cards/article/best-rewards-credit-cards-172941111.html)\n        5.   [Best travel cards](https://finance.yahoo.com/personal-finance/credit-cards/article/best-travel-rewards-credit-card-172745542.html)\n\n    3.   [Banking](https://finance.yahoo.com/personal-finance/banking/) \n        1.   [Best CD rates](https://finance.yahoo.com/personal-finance/banking/article/best-cd-rates-201308688.html)\n        2.   [Best high-yield savings accounts](https://finance.yahoo.com/personal-finance/banking/article/best-high-yield-savings-account-171334498.html)\n        3.   [Best money market accounts](https://finance.yahoo.com/personal-finance/banking/article/4-percent-interest-money-market-accounts-160154289.html)\n        4.   [Best free checking accounts](https://finance.yahoo.com/personal-finance/banking/article/best-free-checking-accounts-195709452.html)\n        5.   [Best online banks](https://finance.yahoo.com/personal-finance/banking/article/best-online-banks-225003422.html)\n\n    4.   [Mortgage](https://finance.yahoo.com/personal-finance/mortgages/) \n        1.   [Best mortgage lenders](https://finance.yahoo.com/personal-finance/mortgages/article/best-mortgage-lenders-173044403.html)\n        2.   [Lowest mortgage rates](https://finance.yahoo.com/personal-finance/mortgages/article/8-strategies-for-getting-the-lowest-mortgage-rate-possible-in-2026-224601956.html)\n        3.   [Mortgage refinance](https://finance.yahoo.com/personal-finance/mortgages/article/refinance-mortgage-162831396.html)\n        4.   [First time homebuyer](https://finance.yahoo.com/personal-finance/mortgages/article/first-time-home-buyer-195246478.html)\n        5.   [Mortgage payment calculator](https://finance.yahoo.com/personal-finance/calculators/mortgage-payment-calculator/)\n        6.   [Home affordability calculator](https://finance.yahoo.com/personal-finance/calculators/how-much-home-can-i-afford/)\n\n    5.   [Insurance](https://finance.yahoo.com/personal-finance/insurance/) \n        1.   [Find car insurance](https://finance.yahoo.com/personal-finance/insurance/article/cheap-car-insurance-152307402.html)\n        2.   [Types of car insurance](https://finance.yahoo.com/personal-finance/insurance/article/types-of-car-insurance-175724082.html)\n        3.   [Find life insurance](https://finance.yahoo.com/personal-finance/insurance/article/what-is-life-insurance-200844307.html)\n\n    6.   [Taxes](https://finance.yahoo.com/personal-finance/taxes/) \n        1.   [How to file](https://finance.yahoo.com/personal-finance/taxes/article/irs-direct-file-230748915.html)\n        2.   [Tax brackets and rates](https://finance.yahoo.com/personal-finance/taxes/article/tax-brackets-165854746.html)\n        3.   [Child tax credit](https://finance.yahoo.com/personal-finance/taxes/article/child-tax-credit-2023-170245284.html)\n        4.   [Tax extension](https://finance.yahoo.com/personal-finance/taxes/article/tax-extension-220004592.html)\n        5.   [Tax refund status](https://finance.yahoo.com/personal-finance/taxes/article/wheres-my-refund-223612874.html)\n\n    7.   [Student loans](https://finance.yahoo.com/personal-finance/student-loans/) \n        1.   [Federal vs. private](https://finance.yahoo.com/personal-finance/student-loans/article/are-federal-or-private-loans-better-175200294.html)\n        2.   [How to apply](https://finance.yahoo.com/personal-finance/student-loans/article/how-to-apply-for-federal-student-loans-203505397.html)\n        3.   [FAFSA 2026-27](https://finance.yahoo.com/personal-finance/student-loans/article/what-is-fafsa-173422253.html)\n        4.   [Student loan assistance](https://finance.yahoo.com/personal-finance/student-loans/article/when-do-student-loans-resume-203115948.html)\n\n    8.   [Personal loans](https://finance.yahoo.com/personal-finance/personal-loans/) \n        1.   [Best personal loans](https://finance.yahoo.com/personal-finance/personal-loans/article/best-personal-loans-202034980.html)\n        2.   [Improve credit score](https://finance.yahoo.com/personal-finance/banking/article/how-to-improve-credit-score-140045472.html)\n        3.   [How to get approved](https://finance.yahoo.com/personal-finance/personal-loans/article/how-to-get-approved-for-personal-loan-173728303.html)\n\n7.   [Videos](https://finance.yahoo.com/videos/)\n    1.   [Latest](https://finance.yahoo.com/videos/latest/)\n    2.   [Editor's picks](https://finance.yahoo.com/videos/editor-picks/)\n    3.   [Trending stocks](https://finance.yahoo.com/videos/trending-stocks/)\n    4.   [Investing insights](https://finance.yahoo.com/videos/investing-insights/)\n    5.   [Live shows](https://finance.yahoo.com/videos/series/) \n        1.   [Morning Brief](https://finance.yahoo.com/videos/series/morning-brief/)\n        2.   [Opening Bid](https://finance.yahoo.com/videos/series/opening-bid/)\n        3.   [Market Catalysts](https://finance.yahoo.com/videos/series/market-catalysts/)\n        4.   [Market Domination](https://finance.yahoo.com/videos/series/market-domination/)\n        5.   [Market Domination Overtime](https://finance.yahoo.com/videos/series/market-domination-overtime/)\n        6.   [Asking for a Trend](https://finance.yahoo.com/videos/series/asking-for-a-trend/)\n\n    6.   [Video podcasts](https://finance.yahoo.com/videos/series/) \n        1.   [Stocks in Translation](https://finance.yahoo.com/videos/series/stocks-in-translation/)\n        2.   [Trader Talk](https://finance.yahoo.com/videos/series/trader-talk/)\n        3.   [Living Not So Fabulously](https://finance.yahoo.com/videos/series/living-fabulously/)\n        4.   [The Big Idea](https://finance.yahoo.com/videos/series/big-idea/)\n        5.   [Financial Freestyle](https://finance.yahoo.com/videos/series/financial-freestyle/)\n\n    7.   [FA Corner](https://finance.yahoo.com/topic/fa-corner/)\n    8.   [ETF Report](https://finance.yahoo.com/topic/etf-report/)\n    9.   [Options Unlocked](https://finance.yahoo.com/topic/options-101/)\n\n8.   [Watch Now](https://finance.yahoo.com/live/)\n\n...\n\n[Upgrade to Premium](https://finance.yahoo.com/about/plans/select-plan/?.done=https%3A%2F%2Ffinance.yahoo.com%2Fnews%2F3-warning-signs-stock-market-124500662.html&ncid=_1088_DCM-PARTNER_NATIVE_US_NoTargeting_HeaderEyebrow_YahooFinanceUsers___RightRail_Header-UpgradetoPaidSubscriptionButton__N_)\n\n[![Image 5](https://s.yimg.com/cv/apiv2/default/20260122/polymarket-logo-white.svg) Prediction markets are now on Yahoo Finance ------------------------------------------- Go to hub](https://finance.yahoo.com/markets/prediction/trending/?ncid=100003406)\n\n[![Image 6: Motley Fool](https://s.yimg.com/ny/api/res/1.2/PJ0bieE00kaRNNlQCqqc6w--/YXBwaWQ9aGlnaGxhbmRlcjt3PTE4MjtoPTQ4O2NmPXdlYnA-/https://s.yimg.com/os/creatr-uploaded-images/2020-10/515f50a0-0f30-11eb-9ebf-0273aacc9ef0)](http://www.fool.com/ \"Motley Fool\")\n\n3 Warning Signs That the Stock Market Today Is in an Artificial Intelligence (AI) Bubble\n========================================================================================\n\n Neil Patel, The Motley Fool \n\nMon, February 2, 2026 at 7:45 AM EST 4 min read\n\nIn this article:\n\n[QQQ -1.68%](https://finance.yahoo.com/quote/QQQ/ \"QQQ\")\n\nThe **Invesco QQQ Trust**, which tracks the tech-heavy **Nasdaq-100** index, has generated a fantastic total return of 117% in the past three years (as of Jan. 28). That performance was driven mainly by the success and rising popularity among the investment community of the \"Magnificent Seven\" stocks. These tech-centric businesses, and others betting big on [artificial intelligence](https://www.fool.com/terms/a/artificial-intelligence/?utm_source=yahoo-host-full&utm_medium=feed&utm_campaign=article&referring_guid=7d4304b8-9ae9-424d-a74f-bafa01dad3a1) (AI) ventures, have powered an outsized share of the broader market's apparently ever-increasing value.\n\nInvestors and industry experts can be bullish on the longer-term prospects of AI. But it's important to see how matters stand in the present clearly. Here are three warning signs that the stock market today is in an AI bubble.\n\n_**Where to invest $1,000 right now?** Our analyst team just revealed what they believe are the **10 best stocks** to buy right now, when you join Stock Advisor.[**See the stocks »**](https://api.fool.com/infotron/infotrack/click?apikey=35527423-a535-4519-a07f-20014582e03e&impression=54676e33-1529-40d5-a4e2-b294533336fb&url=https%3A%2F%2Fwww.fool.com%2Fmms%2Fmark%2Fe-sa-bbn-bn%3Faid%3D8867%26source%3Disaeditxt0001095%26ftm\\_cam%3Dsa-bbn-evergreen%26ftm\\_veh%3Dtop\\_incontent\\_pitch\\_feed\\_yahoo%26ftm\\_pit%3D17546&utm\\_source=yahoo-host-full&utm\\_medium=feed&utm\\_campaign=article&referring\\_guid=7d4304b8-9ae9-424d-a74f-bafa01dad3a1)_\n\n![Image 7: Drawing of robot face blowing AI-filled bubble.](https://s.yimg.com/ny/api/res/1.2/6DL5t4cw1KzYRjyDVut_qg--/YXBwaWQ9aGlnaGxhbmRlcjt3PTk2MDtoPTUyNTtjZj13ZWJw/https://media.zenfs.com/en/motleyfool.com/f0f770f7a3939ff081f694eef98a9dca)\n\nImage source: Getty Images. \n\n1. Enormous capital outlays\n---------------------------\n\nThe [hyperscalers](https://www.fool.com/terms/h/hyperscalers/?utm_source=yahoo-host-full&utm_medium=feed&utm_campaign=article&referring_guid=7d4304b8-9ae9-424d-a74f-bafa01dad3a1), a group of large data center operators that includes companies like **Amazon**, **Microsoft**, and **Alphabet**, spent hundreds of billions of dollars collectively on capital expenditures last year, mostly for AI-related projects. These massive sums are driving a surge in investment activity among these businesses compared to prior years.\n\nOpenAI, whose launch of the ChatGPT chatbot a few years ago set off this craze, might face a funding gap before this decade ends. The company says it plans to spend a jaw-dropping $1.4 trillion on computing resources over the next eight years. OpenAI reached $20 billion in annualized revenue last year, so where will the money come from?\n\n2. Unique financial engineering\n-------------------------------\n\nEven companies that generate robust net income and free cash flow are tapping the capital markets to raise money to fund all of this infrastructure spending. And there is no shortage of financial engineering going on.\n\nFor instance, a $27 billion joint venture between **Meta Platforms** and **Blue Owl Capital** allows the social media giant to keep that debt off its balance sheet.\n\nSo-called circular financing arrangements are also in place. These occur when one company purchases a stake in a target company that turns around and uses the capital it received to buy products and services from the original investor.\n\nIt's clear that there is a lot of interconnectedness between the various entities leading the AI sector. If one business starts to struggle in any capacity, the domino effect could lead to troubles across the space.\n\n3. Uncertain long-term returns\n------------------------------\n\nIn November, OpenAI said that ChatGPT had 800 million weekly users. Alphabet's Gemini app had 650 million monthly active users in Q3. The rapidness of society's adoption of these AI tools has been impressive.\n\nStory Continues\n\nBut research by Menlo Ventures suggests that only 3% of AI users pay for premium-tier access to those services. This calls into question whether the returns on all this AI capital spending will be adequate to justify it.\n\nThis leads me to another point: There's a chance AI will end up being only incrementally beneficial to the economy and society, providing less dramatic improvements than were delivered by previous innovations like PCs, mobile devices, and cloud computing.\n\nAs such, the people who are hoping that this technology will fundamentally change civilization or solve all the world's problems -- and who are bidding up the share prices of the companies involved accordingly -- might wind up disappointed.\n\nShould you buy stock in Invesco QQQ Trust right now?\n----------------------------------------------------\n\nBefore you buy stock in Invesco QQQ Trust, consider this:\n\nThe _Motley Fool Stock Advisor_ analyst team just identified what they believe are the**[10 best stocks](https://api.fool.com/infotron/infotrack/click?apikey=35527423-a535-4519-a07f-20014582e03e&impression=11a72e44-08f2-4720-87cf-339ca4a01358&url=https%3A%2F%2Fwww.fool.com%2Fmms%2Fmark%2Fe-sa-bbn-dyn-headline%3Faid%3D8867%26source%3Disaeditxt0001181%26company%3DInvesco%2520QQQ%2520Trust%26ftm_cam%3Dsa-bbn-evergreen%26ftm_veh%3Darticle_pitch_feed_yahoo%26ftm_pit%3D18781&utm_source=yahoo-host-full&utm_medium=feed&utm_campaign=article&referring_guid=7d4304b8-9ae9-424d-a74f-bafa01dad3a1)** for investors to buy now… and Invesco QQQ Trust wasn’t one of them. The 10 stocks that made the cut could produce monster returns in the coming years.\n\nConsider when **Netflix** made this list on December 17, 2004... if you invested $1,000 at the time of our recommendation,**you’d have $450,256**!* Or when **Nvidia** made this list on April 15, 2005... if you invested $1,000 at the time of our recommendation, **you’d have $1,171,666**!*\n\nNow, it’s worth noting _Stock Advisor’s_ total average return is 942% — a market-crushing outperformance compared to 196% for the S&P 500.**Don't miss the latest top 10 list, available with _Stock Advisor_, and join an investing community built by individual investors for individual investors.**\n\n[**See the 10 stocks »**](https://api.fool.com/infotron/infotrack/click?apikey=35527423-a535-4519-a07f-20014582e03e&impression=11a72e44-08f2-4720-87cf-339ca4a01358&url=https%3A%2F%2Fwww.fool.com%2Fmms%2Fmark%2Fe-sa-bbn-dyn-headline%3Faid%3D8867%26source%3Disaeditxt0001181%26company%3DInvesco%2520QQQ%2520Trust%26ftm_cam%3Dsa-bbn-evergreen%26ftm_pit%3D18781%26ftm_veh%3Darticle_pitch_feed_yahoo%26company%3DInvesco%2520QQQ%2520Trust&utm_source=yahoo-host-full&utm_medium=feed&utm_campaign=article&referring_guid=7d4304b8-9ae9-424d-a74f-bafa01dad3a1)\n\n_*Stock Advisor returns as of February 2, 2026._\n\n_[Neil Patel](https://www.fool.com/author/20294/) has positions in Invesco QQQ Trust. The Motley Fool has positions in and recommends Alphabet, Amazon, Meta Platforms, and Microsoft. The Motley Fool has a [disclosure policy](https://www.fool.com/legal/fool-disclosure-policy/)._\n\n[3 Warning Signs That the Stock Market Today Is in an Artificial Intelligence (AI) Bubble](https://www.fool.com/investing/2026/02/02/3-warning-signs-stock-market-today-ai-bubble/) was originally published by The Motley Fool\n\nView Comments \n\n[Terms](https://guce.yahoo.com/terms?locale=en-US) and [Privacy Policy](https://guce.yahoo.com/privacy-policy?locale=en-US)\n\n[Privacy Dashboard](https://guce.yahoo.com/privacy-dashboard?locale=en-US)\n\n[More Info](https://finance.yahoo.com/more-info)\n\n* * *\n\n*     \n\n* * *\n\n*     \n\n* * *\n\n*     \n\n* * *\n\n*     \n\n* * *\n\n*     \n\n* * *\n\n*     \n\n* * *\n\n*     \n\n* * *\n\nRecommended Stories\n-------------------\n\n[](https://finance.yahoo.com/)\n\nCopyright © 2026 Yahoo. All rights reserved.\n\n[](https://twitter.com/YahooFinance \"Follow on Twitter\")[](https://facebook.com/yahoofinance \"Follow on Facebook\")[](https://www.linkedin.com/company/yahoo-finance \"Follow on LinkedIn\")\n\nWhat's trending\n\n[Dow Jones](https://finance.yahoo.com/quote/%5EDJI/)[S&P 500](https://finance.yahoo.com/quote/SPY/)[DAX Index](https://finance.yahoo.com/quote/%5EGDAXI/)[Nvidia](https://finance.yahoo.com/quote/NVDA/)[Tesla](https://finance.yahoo.com/quote/TSLA/)[DJT](https://finance.yahoo.com/quote/DJT/)[Tariffs](https://finance.yahoo.com/topic/tariffs/)\n\nExplore more\n\n[Mortgages](https://finance.yahoo.com/personal-finance/mortgages/)[Credit Cards](https://finance.yahoo.com/personal-finance/credit-cards/)[Sectors](https://finance.yahoo.com/sectors/)[Crypto Heatmap](https://finance.yahoo.com/crypto/heatmap/)[Financial News](https://finance.yahoo.com/news/)\n\nAbout\n\n[Data Disclaimer](https://help.yahoo.com/kb/finance-for-web/SLN2310.html?locale=en_US)[Help](https://help.yahoo.com/kb/finance-for-web)[Feedback](https://yahoo.uservoice.com/forums/952723-finance-b3)[Sitemap](https://finance.yahoo.com/sitemap/)[Licensing](https://info.wrightsmedia.com/yahoo-finance-licensing)[What's New](https://finance.yahoo.com/about/whatsnew/)[About Our Ads](https://policies.oath.com/us/en/oath/privacy/adinfo/index.html)[Premium Plans](https://finance.yahoo.com/about/plans/)\n\n[Terms](https://guce.yahoo.com/terms?locale=en-US) and [Privacy Policy](https://guce.yahoo.com/privacy-policy?locale=en-US)\n\n[Privacy Dashboard](https://guce.yahoo.com/privacy-dashboard?locale=en-US)\n\n[More Info](https://finance.yahoo.com/more-info)\n\nTip: Try a valid symbol or a specific company name for relevant results\n\n### Trending Tickers\n\n*   BTC-USD Bitcoin USD   Cryptocurrency CCC  \n*   GOOG Alphabet Inc.   Equity NMS  \n*   GOOGL Alphabet Inc.   Equity NMS  \n*   ETH-USD Ethereum USD   Cryptocurrency CCC  \n*   NIO NIO Inc.   Equity NYQ  \n*   HIMS Hims & Hers Health, Inc.   Equity NYQ  \n\n*   \n  U.S. markets close in 5h 24m   US Europe Asia Cryptocurrencies Rates Commodities Currencies   \n    *   [S&P 500 6,783.66-99.06(-1.44%)](https://finance.yahoo.com/quote/%5EGSPC/)    \n    *   [Dow 30 48,855.38-645.92(-1.30%)](https://finance.yahoo.com/quote/%5EDJI/)    \n    *   [Nasdaq 22,493.20-411.38(-1.80%)](https://finance.yahoo.com/quote/%5EIXIC/)    \n    *   [Russell 2000 2,604.37-20.18(-0.77%)](https://finance.yahoo.com/quote/%5ERUT/)    \n    *   [VIX 22.47+3.83(+20.43%)](https://finance.yahoo.com/quote/%5EVIX/)    \n    *   [Gold 4,854.20-96.60(-1.95%)](https://finance.yahoo.com/quote/GC%3DF/)    \n\n*      \n*   \n[Trending tickers](https://finance.yahoo.com/trending-tickers) \n    *   [BTC-USD Bitcoin USD 66,726.20-7,595.93(-10.22%)](https://finance.yahoo.com/quote/BTC-USD/)    \n    *   [GOOG Alphabet Inc.317.60-15.74(-4.72%)](https://finance.yahoo.com/quote/GOOG/)    \n    *   [GOOGL Alphabet Inc.316.15-16.89(-5.07%)](https://finance.yahoo.com/quote/GOOGL/)    \n    *   [ETH-USD Ethereum USD 1,932.15-230.92(-10.68%)](https://finance.yahoo.com/quote/ETH-USD/)    \n    *   [NIO NIO Inc.4.6450+0.2033(+4.58%)](https://finance.yahoo.com/quote/NIO/)    \n\n*   [Portfolio](https://finance.yahoo.com/portfolios) [Portfolio](https://finance.yahoo.com/portfolios)   Sign in to access your portfolio\n\n[Sign in](https://login.yahoo.com/config/login?done=https%3A%2F%2Ffinance.yahoo.com%2Fnews%2F3-warning-signs-stock-market-124500662.html&intl=us&lang=en-US&activity=dock-portfolio&pspid=1183300100&src=finance)    \n\n*   \n[Top gainers](https://finance.yahoo.com/gainers/) \n    *   [KELYB Kelly Services, Inc.75.33+64.52(+596.85%)](https://finance.yahoo.com/quote/KELYB/)    \n    *   [SITM SiTime Corporation 409.70+61.74(+17.74%)](https://finance.yahoo.com/quote/SITM/)    \n    *   [MCK McKesson Corporation 959.00+137.00(+16.67%)](https://finance.yahoo.com/quote/MCK/)    \n    *   [ENSG The Ensign Group, Inc.195.85+22.67(+13.09%)](https://finance.yahoo.com/quote/ENSG/)    \n    *   [FORM FormFactor, Inc.81.99+10.42(+14.56%)](https://finance.yahoo.com/quote/FORM/)    \n\n*   [Top losers](https://finance.yahoo.com/losers/)  \nError in retrieving data   \n*   \n[Most active](https://finance.yahoo.com/most-active/) \n    *   [CADE Cadence Bank 42.11-0.71(-1.66%)](https://finance.yahoo.com/quote/CADE/)    \n    *   [NVDA NVIDIA Corporation 171.94-2.26(-1.30%)](https://finance.yahoo.com/quote/NVDA/)    \n    *   [SNAP Snap Inc.5.29-0.62(-10.58%)](https://finance.yahoo.com/quote/SNAP/)    \n    *   [NIO NIO Inc.4.6417+0.2017(+4.54%)](https://finance.yahoo.com/quote/NIO/)    \n    *   [INTC Intel Corporation 47.31-1.29(-2.65%)](https://finance.yahoo.com/quote/INTC/)    \n\n*   [Top economic events](https://finance.yahoo.com/calendar/economic)     \n*   [Earnings events](https://finance.yahoo.com/calendar/earnings?day=2026-02-05)- [x] My earnings events    - [x] Earnings events         \n\nEdit your Dock\n\n[Terms](https://guce.yahoo.com/terms?locale=en-US) and [Privacy Policy](https://guce.yahoo.com/privacy-policy?locale=en-US)\n\n[Privacy Dashboard](https://guce.yahoo.com/privacy-dashboard?locale=en-US)\n\n[Ad Terms](https://policies.oath.com/us/en/oath/privacy/adinfo/index.html)[Feedback](https://yahoo.uservoice.com/forums/952723-finance-b3)[More Info](https://finance.yahoo.com/more-info)\n"
-        },
-        "pairedItem": {
-          "item": 0
-        }
-      }
-    ],
-    "AI Analyst - Wall Street": [
-      {
-        "json": {
-          "output": {
-            "score": -3,
-            "recommendation": "HOLD",
-            "reasoning": "La noticia identifica 3 señales de advertencia de una posible burbuja en el mercado de acciones de AI: enormes desembolsos de capital (cientos de miles de millones por parte de empresas como Amazon, Microsoft y Alphabet, y $1.4 billones planeados por OpenAI), ingeniería financiera compleja (estructuras para mantener deuda fuera de balances y financiación circular), y rendimientos inciertos a largo plazo (solo 3% de usuarios de IA pagan por acceso premium). Aunque el tono es de advertencia cautelosa, no reporta eventos negativos concretos que ya hayan ocurrido, sino señales de posibles sobrevaloraciones especulativas. El Invesco QQQ Trust ha subido 117% en 3 años, impulsado por las 'Magnificent Seven' tecnológicas, lo que sugiere una posible euforia excesiva. La noticia justifica una postura de espera y monitoreo adicional antes de tomar decisiones de inversión."
-          }
-        },
-        "pairedItem": {
-          "item": 0
-        }
-      }
-    ],
-    "Gmail Alert": [
-      {
-        "json": {
-          "id": "19c2e747f0e40174",
-          "threadId": "19c2e747f0e40174",
-          "labelIds": [
-            "UNREAD",
-            "SENT",
-            "INBOX"
-          ]
-        },
-        "pairedItem": {
-          "item": 0
-        }
-      }
-    ]
-  },
-  "versionId": "6114df51-4ad7-4fdb-88e9-a12230bd8afa",
-  "activeVersionId": null,
-  "versionCounter": 42,
-  "triggerCount": 0,
+  "pinData": {},
+  "versionId": "ac83180f-f173-4406-bd16-9b6a9dbc9a9f",
+  "activeVersionId": "ac83180f-f173-4406-bd16-9b6a9dbc9a9f",
+  "versionCounter": 71,
+  "triggerCount": 1,
   "shared": [
     {
       "updatedAt": "2026-02-03T20:39:16.410Z",
@@ -382,5 +380,326 @@
     }
   ],
   "tags": [],
-  "activeVersion": null
+  "activeVersion": {
+    "updatedAt": "2026-02-05T16:32:12.000Z",
+    "createdAt": "2026-02-05T16:31:43.482Z",
+    "versionId": "ac83180f-f173-4406-bd16-9b6a9dbc9a9f",
+    "workflowId": "GOBWQwHpCECxsYt-8T-Bx",
+    "nodes": [
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyHour"
+              }
+            ]
+          },
+          "feedUrl": "https://finance.yahoo.com/news/rss"
+        },
+        "id": "0e0b0b39-87a2-48c3-8b39-a75964ede5bf",
+        "name": "RSS Feed - Yahoo Finance",
+        "type": "n8n-nodes-base.rssFeedReadTrigger",
+        "typeVersion": 1,
+        "position": [
+          1088,
+          144
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "const keywords = ['NVIDIA', 'TSLA', 'AAPL', 'BTC', 'COMMODITY', 'AI'];\nconst title = $json.title.toUpperCase();\nconst matches = keywords.filter(k => title.includes(k));\n\nreturn {\n  interesting: matches.length > 0,\n  ticker: matches[0] || 'GENERIC',\n  title: $json.title,\n  link: $json.link\n};"
+        },
+        "id": "315ada6c-e7d8-44c5-bef2-45aed4659fab",
+        "name": "Ticker Filter",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1312,
+          144
+        ]
+      },
+      {
+        "parameters": {
+          "url": "=https://r.jina.ai/{{ $json.link }}",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpBearerAuth",
+          "options": {
+            "response": {
+              "response": {
+                "responseFormat": "text"
+              }
+            }
+          }
+        },
+        "id": "c21ebb2d-3562-4152-8ff6-b544ed5ab8e9",
+        "name": "Jina Reader - Clean Article",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          1760,
+          48
+        ],
+        "credentials": {
+          "httpBearerAuth": {
+            "id": "UvOWlSbwdldEzmAC",
+            "name": "Bearer Auth Jian AI"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $json.data }}",
+          "hasOutputParser": true,
+          "options": {
+            "systemMessage": "Eres un Analista de Riesgo de un Hedge Fund. Tu tarea es leer una noticia y determinar el impacto en el precio de la acción (Sentiment).\n\nCRITERIOS DE ANÁLISIS:\n- Bullish (10): Noticia muy positiva (ganancias récord, nuevos productos).\n- Bearish (-10): Noticia muy negativa (fraude, multas, pérdida de mercado).\n- Neutral (0): Información rutinaria.\n\nTONO: Frío, numérico y basado en datos.\n\nEl Output de reasoning debe estar en Español. "
+          }
+        },
+        "id": "3d756f54-175a-4f80-85d0-021de7a1dbc3",
+        "name": "AI Analyst - Wall Street",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          2016,
+          48
+        ]
+      },
+      {
+        "parameters": {
+          "model": "=z-ai/glm-4.5-air:free",
+          "options": {}
+        },
+        "id": "62d2ed87-fd47-4045-8b87-21515106d5f8",
+        "name": "OpenRouter - Gemini 2.0 Flash",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "typeVersion": 1,
+        "position": [
+          1984,
+          272
+        ],
+        "credentials": {
+          "openRouterApi": {
+            "id": "xZpAyjDIWgQms8rD",
+            "name": "OpenRouter account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "schemaType": "manual",
+          "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"score\": { \"type\": \"integer\", \"description\": \"De -10 a 10\" },\n    \"recommendation\": { \"type\": \"string\", \"enum\": [\"BUY\", \"SELL\", \"HOLD\"] },\n    \"reasoning\": { \"type\": \"string\" }\n  },\n  \"required\": [\"score\", \"recommendation\", \"reasoning\"]\n}",
+          "autoFix": true
+        },
+        "id": "8b72f814-56c8-491c-88a1-41dab8ee8b3f",
+        "name": "Structured Output Parser",
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.3,
+        "position": [
+          2112,
+          272
+        ]
+      },
+      {
+        "parameters": {
+          "sendTo": "gobeamariano@gmail.com",
+          "subject": "=🚨 Alerta de Mercado: {{ $('Ticker Filter').item.json.ticker }} - {{ $json.output.recommendation }}",
+          "message": "=<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }\n    .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }\n    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }\n    .header h1 { margin: 0; font-size: 24px; }\n    .alert-icon { font-size: 48px; margin-bottom: 10px; }\n    .content { padding: 30px; }\n    .ticker-badge { display: inline-block; background-color: #667eea; color: white; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 18px; margin-bottom: 20px; }\n    .recommendation-box { background-color: {{ $json.output.recommendation === 'BUY' ? '#4caf50' : ($json.output.recommendation === 'SELL' ? '#f44336' : '#ff9800') }}; color: white; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0; }\n    .recommendation-box h2 { margin: 0 0 10px 0; font-size: 28px; }\n    .score-badge { background-color: rgba(255,255,255,0.2); display: inline-block; padding: 10px 20px; border-radius: 20px; font-size: 20px; font-weight: bold; }\n    .reasoning-section { background-color: #f8f9fa; padding: 20px; border-left: 4px solid #667eea; margin: 20px 0; border-radius: 4px; }\n    .reasoning-section h3 { margin-top: 0; color: #333; }\n    .reasoning-section p { color: #555; line-height: 1.6; margin: 0; }\n    .source-section { margin-top: 30px; padding-top: 20px; border-top: 2px solid #e0e0e0; }\n    .source-link { display: inline-block; background-color: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin-top: 10px; }\n    .source-link:hover { background-color: #5568d3; }\n    .footer { background-color: #f8f9fa; padding: 20px; text-align: center; color: #777; font-size: 12px; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <div class=\"alert-icon\">🚨</div>\n      <h1>Alerta de Mercado Financiero</h1>\n    </div>\n    <div class=\"content\">\n      <div style=\"text-align: center;\">\n        <span class=\"ticker-badge\">{{ $('Ticker Filter').item.json.ticker }}</span>\n      </div>\n      \n      <div class=\"recommendation-box\">\n        <h2>{{ $json.output.recommendation }}</h2>\n        <div class=\"score-badge\">Score: {{ $json.output.score }}/10</div>\n      </div>\n      \n      <div class=\"reasoning-section\">\n        <h3>📊 Análisis del Analista</h3>\n        <p>{{ $json.output.reasoning }}</p>\n      </div>\n      \n      <div class=\"source-section\">\n        <h3 style=\"color: #333; margin-top: 0;\">📰 Fuente de la Noticia</h3>\n        <p style=\"color: #555;\">{{ $('Ticker Filter').item.json.title }}</p>\n        <a href=\"{{ $('Ticker Filter').item.json.link }}\" class=\"source-link\" target=\"_blank\">Leer Artículo Completo</a>\n      </div>\n    </div>\n    <div class=\"footer\">\n      <p>Este es un mensaje automático generado por tu sistema de monitoreo financiero con IA.</p>\n      <p>Powered by n8n AI Financial Monitor</p>\n    </div>\n  </div>\n</body>\n</html>",
+          "options": {}
+        },
+        "id": "d6d0e533-b4c9-49aa-a7c5-6925826310e9",
+        "name": "Gmail Alert",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          2480,
+          48
+        ],
+        "webhookId": "1dba2c63-00c9-4184-a2d8-533a04d84b86",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "qBqHR4Ctwvw5icyM",
+            "name": "gobeamariano@gmail.com Gmail"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "z-ai/glm-4.5-air:free",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "typeVersion": 1,
+        "position": [
+          2192,
+          480
+        ],
+        "id": "f87f3c10-0b9d-4287-8d26-03b637817c90",
+        "name": "OpenRouter Chat Model",
+        "credentials": {
+          "openRouterApi": {
+            "id": "xZpAyjDIWgQms8rD",
+            "name": "OpenRouter account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "d809c34b-ae2a-4e2c-90e6-48d963075a32",
+                "leftValue": "={{ $json.interesting }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          1536,
+          144
+        ],
+        "id": "68c5754b-00be-4391-abcb-72f25fc413ab",
+        "name": "If"
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.noOp",
+        "typeVersion": 1,
+        "position": [
+          1760,
+          240
+        ],
+        "id": "0948bfb8-127b-4c53-a2b0-c488cc919e10",
+        "name": "No Operation, do nothing"
+      }
+    ],
+    "connections": {
+      "RSS Feed - Yahoo Finance": {
+        "main": [
+          [
+            {
+              "node": "Ticker Filter",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Ticker Filter": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Jina Reader - Clean Article": {
+        "main": [
+          [
+            {
+              "node": "AI Analyst - Wall Street",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter - Gemini 2.0 Flash": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Analyst - Wall Street",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "AI Analyst - Wall Street",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Analyst - Wall Street": {
+        "main": [
+          [
+            {
+              "node": "Gmail Alert",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Structured Output Parser",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Jina Reader - Clean Article",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "No Operation, do nothing",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Mariano Daniel Gobea Alcoba",
+    "name": "Version ac83180f",
+    "description": "",
+    "autosaved": true,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-02-05T16:32:12.679Z",
+        "id": 15,
+        "workflowId": "GOBWQwHpCECxsYt-8T-Bx",
+        "versionId": "ac83180f-f173-4406-bd16-9b6a9dbc9a9f",
+        "event": "activated",
+        "userId": "7e93e9fa-ed56-44be-9665-0a8ad9e738d2"
+      }
+    ]
+  }
 }

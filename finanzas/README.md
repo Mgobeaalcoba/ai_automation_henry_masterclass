@@ -41,6 +41,8 @@ RSS Feed (Yahoo Finance)
         ↓
 Ticker Filter (JavaScript)
         ↓
+IF Conditional (Filtro de Interés)
+        ↓
 Jina AI Reader (Web Scraper)
         ↓
 AI Agent (Analista de Riesgo)
@@ -54,14 +56,15 @@ Gmail Alert (Email Formateado)
 
 1. **Captura:** RSS Feed consulta Yahoo Finance cada hora (o cada 15 min)
 2. **Filtrado:** JavaScript identifica si la noticia menciona tickers en watchlist
-3. **Limpieza:** Jina AI extrae solo el contenido relevante (sin ads, menús, popups)
-4. **Análisis:** AI Agent actúa como analista de hedge fund:
+3. **Decisión condicional:** Si la noticia es interesante, continúa al siguiente paso; si no, termina
+4. **Limpieza:** Jina AI extrae solo el contenido relevante (sin ads, menús, popups)
+5. **Análisis:** AI Agent actúa como analista de hedge fund:
    - Lee la noticia completa
    - Evalúa impacto en el precio (Bullish/Bearish/Neutral)
    - Asigna score de -10 (muy negativo) a +10 (muy positivo)
    - Da recomendación: BUY, SELL, HOLD
-5. **Estructuración:** Output Parser garantiza formato JSON consistente
-6. **Alerta:** Si score > 7 o < -7, envía email con análisis completo
+6. **Estructuración:** Output Parser garantiza formato JSON consistente
+7. **Alerta:** Gmail envía email con análisis completo y formato HTML profesional
 
 ---
 
@@ -137,9 +140,8 @@ Gmail Alert (Email Formateado)
 3. Guardar: sk-or-XXXXXXXXXX
 ```
 
-**Modelo recomendado:**
-- `z-ai/glm-4.5-air:free` (gratis, excelente para análisis financiero)
-- `google/gemini-2.0-flash-exp:free` (alternativa gratuita)
+**Modelo utilizado:**
+- `z-ai/glm-4.5-air:free` (gratis, excelente para análisis financiero, rápido y preciso)
 
 #### 1.4 Gmail
 
@@ -166,7 +168,7 @@ Gmail Alert (Email Formateado)
 
 #### 2.2 Configurar Nodos
 
-El workflow tiene **6 nodos principales**:
+El workflow tiene **7 nodos principales**:
 
 **Nodo 1: RSS Feed - Yahoo Finance**
 - Type: RSS Feed Read Trigger
@@ -181,7 +183,7 @@ El workflow tiene **6 nodos principales**:
 - Mode: Run Once for Each Item
 - Código:
   ```javascript
-  const keywords = ['NVIDIA', 'TSLA', 'AAPL', 'BTC', 'COMMODITY'];
+  const keywords = ['NVIDIA', 'TSLA', 'AAPL', 'BTC', 'COMMODITY', 'AI'];
   const title = $json.title.toUpperCase();
   const matches = keywords.filter(k => title.includes(k));
 
@@ -196,22 +198,30 @@ El workflow tiene **6 nodos principales**:
 **Personalización:**
 - Edita `keywords` con tus tickers: `['NVDA', 'TSLA', 'GOOGL', 'META', 'AMZN']`
 - Usa símbolos oficiales: AAPL (Apple), MSFT (Microsoft), BTC (Bitcoin)
+- Incluye palabras clave temáticas: 'AI', 'CRYPTO', 'TECH', etc.
 
-**Nodo 3: Jina AI Reader (HTTP Request)**
+**Nodo 3: IF Conditional (Filtro de Interés)**
+- Condition Type: Boolean
+- Condition: `{{ $json.interesting }}` equals `true`
+- Purpose: Solo continúa procesando si la noticia menciona algún ticker de interés
+- **Rama True:** Conecta a Jina AI Reader para procesar la noticia
+- **Rama False:** Conecta a "No Operation, do nothing" (termina el flujo sin hacer nada)
+
+**Nodo 4: Jina AI Reader (HTTP Request)**
 - Method: GET
 - URL: `https://r.jina.ai/{{ $json.link }}`
 - Authentication: Generic Credential Type → Bearer Auth
 - Bearer Token: Tu API key de Jina
 
-**Nodo 4: AI Agent (LangChain)**
+**Nodo 5: AI Agent (LangChain)**
 - Requiere configurar sub-nodos:
   - OpenRouter Chat Model
   - Structured Output Parser
 
 **Sub-nodo: OpenRouter Chat Model**
-- Model: `z-ai/glm-4.5-air:free`
-- Temperature: 0.3 (más conservador para finanzas)
-- Max Tokens: 1000
+- Model: `z-ai/glm-4.5-air:free` (modelo GLM-4.5 de Z-AI, optimizado y gratuito)
+- Temperature: Por defecto (balanceado para análisis financiero)
+- Max Tokens: Por defecto
 
 **Configurar System Prompt:**
 ```
@@ -258,16 +268,16 @@ El Output de reasoning debe estar en Español.
   }
   ```
 
-**Nodo 5: IF Conditional (Filtro de Alertas)**
-- Condition: `{{ $json.output.score }}` > 7 OR `{{ $json.output.score }}` < -7
-- Purpose: Solo enviar email si el score es extremo (muy bullish o muy bearish)
-- Opcional: Ajustar umbral a 5/-5 para más alertas
-
 **Nodo 6: Gmail (Send Email)**
 - To: Tu email
-- Subject: `🚨 ALERTA [{{ $('Ticker Filter').item.json.ticker }}] - {{ $json.output.recommendation }}`
+- Subject: `🚨 Alerta de Mercado: {{ $('Ticker Filter').item.json.ticker }} - {{ $json.output.recommendation }}`
 - Email Type: HTML
 - HTML Body: Ver ejemplo completo en [`examples/sample-email-template.html`](examples/sample-email-template.html)
+
+**Nodo 7: No Operation, do nothing**
+- Type: No Operation
+- Purpose: Termina el flujo sin acción cuando una noticia NO es interesante
+- Conectado a: Rama False del nodo IF Conditional (Nodo 3)
 
 ---
 
@@ -322,11 +332,14 @@ Además del sentiment, considera:
 
 1. **Activar el workflow** en n8n (botón "Active")
 2. **RSS Feed empieza a consultar** Yahoo Finance cada hora
-3. **Cuando sale una noticia** de uno de tus tickers:
-   - Jina AI extrae el contenido
-   - AI Agent analiza sentiment
-   - Si score > 7 o < -7, recibes email
-4. **Abres el email** y ves:
+3. **Cuando sale una noticia**:
+   - Ticker Filter evalúa si menciona algún ticker de interés
+   - IF Conditional decide si continuar o descartar
+4. **Si la noticia ES interesante**:
+   - Jina AI extrae el contenido limpio
+   - AI Agent analiza sentiment con modelo GLM-4.5
+   - Gmail envía email con análisis profesional
+5. **Abres el email** y ves:
    - Ticker (ej: NVIDIA)
    - Recommendation (BUY/SELL/HOLD)
    - Score (ej: 9/10)
@@ -340,9 +353,10 @@ Además del sentiment, considera:
 - Link: https://finance.yahoo.com/news/nvidia-q4-earnings-beat
 
 **Procesamiento:**
-1. Ticker Filter detecta "NVIDIA" → interesante: true
-2. Jina AI extrae contenido limpio del artículo
-3. AI Agent analiza:
+1. Ticker Filter detecta "NVIDIA" → interesting: true
+2. IF Conditional evalúa: interesting === true → continúa
+3. Jina AI extrae contenido limpio del artículo
+4. AI Agent (GLM-4.5) analiza:
    - Lee: "Ingresos subieron 200% YoY, guía supera estimaciones"
    - Evalúa: Impacto muy positivo en fundamentales
    - Asigna: score = 9, recommendation = BUY
@@ -407,8 +421,8 @@ curl -I https://finance.yahoo.com/news/rss
 Input de prueba:
 ```json
 {
-  "title": "Tesla Stock Jumps After Strong Q4 Deliveries",
-  "link": "https://example.com/tesla-news"
+  "title": "OpenAI Announces Major AI Breakthrough",
+  "link": "https://example.com/ai-news"
 }
 ```
 
@@ -416,10 +430,15 @@ Expected Output:
 ```json
 {
   "interesting": true,
-  "ticker": "TSLA",
-  "title": "Tesla Stock Jumps After Strong Q4 Deliveries",
-  "link": "https://example.com/tesla-news"
+  "ticker": "AI",
+  "title": "OpenAI Announces Major AI Breakthrough",
+  "link": "https://example.com/ai-news"
 }
+```
+
+Script de testing automatizado:
+```bash
+node scripts/test-ticker-filter.js
 ```
 
 #### Probar Jina AI
@@ -468,13 +487,14 @@ curl https://openrouter.ai/api/v1/chat/completions \
 **Causa:** Keywords mal escritos o ticker no está en el título de la noticia.
 
 **Solución:**
-1. Edita el array `keywords` con símbolos oficiales:
+1. Edita el array `keywords` con símbolos oficiales y palabras clave:
    ```javascript
-   const keywords = ['NVDA', 'NVIDIA', 'TSLA', 'TESLA', 'AAPL', 'APPLE'];
+   const keywords = ['NVDA', 'NVIDIA', 'TSLA', 'TESLA', 'AAPL', 'APPLE', 'AI', 'CRYPTO'];
    ```
 2. Agrega variantes del nombre (símbolo + nombre completo)
-3. Usa mayúsculas (el código hace `.toUpperCase()` automáticamente)
-4. Revisa logs de ejecución en n8n para ver títulos reales de noticias
+3. Incluye keywords temáticas ('AI', 'CRYPTO', 'TECH')
+4. Usa mayúsculas (el código hace `.toUpperCase()` automáticamente)
+5. Revisa logs de ejecución en n8n para ver títulos reales de noticias
 
 ---
 
@@ -495,9 +515,10 @@ curl https://openrouter.ai/api/v1/chat/completions \
 
 **Solución:**
 1. Verifica que el schema JSON sea exacto (3 propiedades: score, recommendation, reasoning)
-2. Cambia a `google/gemini-2.0-flash-exp` (mejor con JSON estructurado)
-3. Asegúrate de que el Output Parser esté conectado al AI Agent
+2. El modelo `z-ai/glm-4.5-air:free` está optimizado para structured outputs
+3. Asegúrate de que el Output Parser esté correctamente conectado al AI Agent
 4. Revisa logs del AI Agent para ver la respuesta raw
+5. Verifica que autoFix esté habilitado en el Structured Output Parser
 
 ---
 

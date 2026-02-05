@@ -14,7 +14,7 @@
 // LÓGICA DEL FILTRO (idéntica al nodo Code)
 // ========================================
 function tickerFilter(input) {
-  const keywords = ['NVIDIA', 'TSLA', 'AAPL', 'BTC', 'COMMODITY'];
+  const keywords = ['NVIDIA', 'TSLA', 'AAPL', 'BTC', 'COMMODITY', 'AI'];
   const title = input.title.toUpperCase();
   const matches = keywords.filter(k => title.includes(k));
 
@@ -56,13 +56,18 @@ const testCases = [
     expected: { interesting: true, ticker: 'COMMODITY' }
   },
   {
+    title: "OpenAI Announces GPT-5 with Revolutionary AI Capabilities",
+    link: "https://finance.yahoo.com/news/openai-gpt5-6",
+    expected: { interesting: true, ticker: 'AI' }
+  },
+  {
     title: "Federal Reserve Announces Interest Rate Decision",
-    link: "https://finance.yahoo.com/news/fed-rates-6",
+    link: "https://finance.yahoo.com/news/fed-rates-7",
     expected: { interesting: false, ticker: 'GENERIC' }
   },
   {
     title: "Amazon Reports Strong Holiday Sales",
-    link: "https://finance.yahoo.com/news/amazon-sales-7",
+    link: "https://finance.yahoo.com/news/amazon-sales-8",
     expected: { interesting: false, ticker: 'GENERIC' }
   }
 ];
@@ -110,6 +115,6 @@ if (failed === 0) {
 
 console.log('\n💡 PERSONALIZACIÓN:\n');
 console.log('Para agregar más tickers a tu watchlist, edita el array keywords:');
-console.log('const keywords = [\'NVIDIA\', \'TSLA\', \'AAPL\', \'BTC\', \'COMMODITY\', \'TU_TICKER\'];');
+console.log('const keywords = [\'NVIDIA\', \'TSLA\', \'AAPL\', \'BTC\', \'COMMODITY\', \'AI\', \'TU_TICKER\'];');
 
 console.log('\n━'.repeat(60));

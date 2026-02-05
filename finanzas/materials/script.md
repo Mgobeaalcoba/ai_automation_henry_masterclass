@@ -29,7 +29,7 @@ Logos Henry:
 Código:
 
 ```javascript
-const keywords = ['NVIDIA', 'TSLA', 'AAPL', 'BTC', 'COMMODITY'];
+const keywords = ['NVIDIA', 'TSLA', 'AAPL', 'BTC', 'COMMODITY', 'AI'];
 const title = $json.title.toUpperCase();
 const matches = keywords.filter(k => title.includes(k));
 
@@ -41,17 +41,24 @@ return {
 };
 ```
 
-* **Discurso:** *"No queremos operar con todo el mercado. Con este pequeño script, obligamos a nuestra IA a enfocarse solo en los activos que tenemos en nuestra cartera, ignorando el resto del ruido"*.
+* **Discurso:** *"No queremos operar con todo el mercado. Con este pequeño script, obligamos a nuestra IA a enfocarse solo en los activos que tenemos en nuestra cartera, ignorando el resto del ruido. Nota cómo incluimos 'AI' como keyword - cualquier noticia sobre inteligencia artificial es relevante para nuestro portafolio tech"*.
 
-### **Nodo 3: Jina Reader (The Financial Scraper)**
+### **Nodo 3: IF Conditional (The Interest Filter)**
+
+* **Condition:** `{{ $json.interesting }}` equals `true`
+* **True branch:** Continúa a Jina Reader
+* **False branch:** No Operation (termina el flujo)
+* **Discurso:** *"Acá ponemos un checkpoint de eficiencia. Si el Ticker Filter ya nos dijo que esta noticia NO menciona ninguno de nuestros activos, ¿para qué gastar tokens de IA analizándola? Este IF nos ahorra procesamiento y dinero, permitiendo que solo las noticias relevantes avancen al análisis profundo"*.
+
+### **Nodo 4: Jina Reader (The Financial Scraper)**
 
 * **Method:** GET.  
 * **URL:** https://r.jina.ai/{{ $json.link }}  
 * **Discurso:** *"Una noticia financiera tiene banners, gráficos y menús que confunden a la IA. Usamos Jina para 'limpiar' el artículo y quedarnos solo con los párrafos de análisis. Menos basura es igual a mejor predicción"*.
 
-### **Nodo 4: AI Agent (The Wall Street Analyst)**
+### **Nodo 5: AI Agent (The Wall Street Analyst)**
 
-* **Model:** z-ai/glm-4.5-air:free (vía OpenRouter).  
+* **Model:** z-ai/glm-4.5-air:free (vía OpenRouter - Modelo GLM-4.5 de Z-AI, optimizado para análisis financiero).  
 * **System Prompt:**Eres un Analista de Riesgo de un Hedge Fund. Tu tarea es leer una noticia y determinar el impacto en el precio de la acción (Sentiment).
 
 ```
@@ -75,7 +82,7 @@ El Output de reasoning debe estar en Español.
       **TONO:** Frío, numérico y basado en datos.  
 * **Discurso:** *"Aquí es donde le damos 'cerebro' al flujo. No le pedimos un resumen, le pedimos una decisión: ¿Esto hace que la acción suba o baje? Le damos una identidad de analista de Wall Street para que no sea impreciso"*.
 
-### **Nodo 5: Output Parser (The Signal Structurer)**
+### **Nodo 6: Output Parser (The Signal Structurer)**
 
 JSON Schema:
 
@@ -93,7 +100,7 @@ JSON Schema:
 
 * **Discurso:** *"La IA suele hablar demasiado. El Parser la obliga a darnos un número y una acción clara: COMPRA, VENDE o ESPERA. Esto es lo que permite automatizar la alerta final"*.
 
-### **Nodo 6: Gmail Sent a Email**
+### **Nodo 7: Gmail Send Email**
 
 * **To: YOUR_EMAIL@gmail.com**  
 * **Subject: \<ALERTA\_\[PRODUCTO\]\>**
